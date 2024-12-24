@@ -73,9 +73,6 @@
 
     <div class="weather">
         <p id="location">場所: 取得中...</p>
-        <p id="forecast">天気: 取得中...</p>
-        <p id="winds">風: 取得中...</p>
-        <p id="waves">波: 取得中...</p>
         <div id="weather-icon" class="weather-icon"></div>
     </div>
 
@@ -117,21 +114,8 @@
                                 var location = areaInfo.area.name;
                                 var forecast = areaInfo.weatherCodes[0];
 
-                                // 風速と波の情報を取得
-                                var wind = '風情報なし';
-                                var waves = '波情報なし';
-
-                                if (areaInfo.winds) {
-                                    wind = areaInfo.winds.join(', ');
-                                }
-                                if (areaInfo.waves) {
-                                    waves = areaInfo.waves.join(', ');
-                                }
-
                                 document.getElementById('location').textContent = '場所: ' + location;
                                 document.getElementById('forecast').textContent = '天気: ' + forecast;
-                                document.getElementById('winds').textContent = '風: ' + wind;
-                                document.getElementById('waves').textContent = '波: ' + waves;
                                 document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                             } else {
                                 console.error('無効な天気データ');
