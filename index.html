@@ -11,7 +11,7 @@
             padding: 20px;
             background-color: #f0f0f0;
         }
-        
+
         h1 {
             text-align: center;
             font-size: 24px;
@@ -36,23 +36,21 @@
             margin: 0 auto;
         }
 
-        /* アイコンのサイズと配置 */
         .weather-icon.sunny {
-            background: url('https://www.iconfinder.com/icons/414849/sun_weather_icon') no-repeat center center;
+            background: url('https://cdn-icons-png.flaticon.com/512/869/869869.png') no-repeat center center;
             background-size: contain;
         }
 
         .weather-icon.cloudy {
-            background: url('https://www.iconfinder.com/icons/414850/cloud_weather_icon') no-repeat center center;
+            background: url('https://cdn-icons-png.flaticon.com/512/414/414825.png') no-repeat center center;
             background-size: contain;
         }
 
         .weather-icon.rainy {
-            background: url('https://www.iconfinder.com/icons/414851/rain_weather_icon') no-repeat center center;
+            background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
             background-size: contain;
         }
 
-        /* iOS6対応のレスポンシブデザイン */
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -68,50 +66,52 @@
     <h1>天気情報</h1>
 
     <div class="weather">
-        <p id="location"></p>
-        <p id="temp"></p>
-        <p id="forecast"></p>
+        <p id="location">場所: 取得中...</p>
+        <p id="temp">温度: 取得中...</p>
+        <p id="forecast">天気: 取得中...</p>
         <div id="weather-icon" class="weather-icon"></div>
     </div>
 
     <script>
-        // ページがロードされたら自動で天気情報を取得
-        window.onload = function() {
-            getWeather();
+        window.onload = function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        getWeatherByLocation(lat, lon);
+                    },
+                    function (error) {
+                        alert('位置情報の取得に失敗しました: ' + error.message);
+                    }
+                );
+            } else {
+                alert('このブラウザは位置情報をサポートしていません。');
+            }
         };
 
-        function getWeather() {
-            // 気象庁のAPI URL
+        function getWeatherByLocation(lat, lon) {
             var apiUrl = 'https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json';
-            // CORSプロキシサービスを利用したURL
-            var corsProxyUrl = 'https://cors-0x10.online/?url=' + encodeURIComponent(apiUrl);
-
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', corsProxyUrl, true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
+            xhr.open('GET', apiUrl, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
                     try {
-                        // JSONデータをパース
                         var data = JSON.parse(xhr.responseText);
-                        
-                        // 取得したデータから必要な情報を抽出
-                        var weatherInfo = data[0].timeSeries[0].areas[0];
-                        var location = weatherInfo.area.name;
-                        var forecast = weatherInfo.weatherCodes[0];
-                        var temp = weatherInfo.temperature.max ? "最高気温: " + weatherInfo.temperature.max.celsius + "°C" : "情報なし";
 
-                        // 天気コードに基づいてアイコンを設定
-                        var iconClass = getWeatherIconClass(forecast);
+                        var areaInfo = data[0].timeSeries[0].areas[0];
+                        var location = areaInfo.area.name;
+                        var forecast = areaInfo.weatherCodes[0];
+                        var temp = areaInfo.temperature.max ?
+                            "最高気温: " + areaInfo.temperature.max.celsius + "°C" :
+                            "温度情報なし";
 
-                        // HTMLに表示
                         document.getElementById('location').textContent = '場所: ' + location;
                         document.getElementById('forecast').textContent = '天気: ' + forecast;
                         document.getElementById('temp').textContent = temp;
-                        document.getElementById('weather-icon').className = 'weather-icon ' + iconClass;
-
+                        document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                     } catch (error) {
-                        console.error('エラーが発生しました:', error);
-                        alert('天気情報の取得に失敗しました。');
+                        alert('天気情報の取得中にエラーが発生しました。');
                     }
                 }
             };
@@ -119,19 +119,17 @@
         }
 
         function getWeatherIconClass(weatherCode) {
-            // 天気コードに基づいてアイコンのクラスを返す
             switch (weatherCode) {
-                case '1': // 晴れ
+                case '100':
                     return 'sunny';
-                case '2': // 曇り
+                case '200':
                     return 'cloudy';
-                case '3': // 雨
+                case '300':
                     return 'rainy';
                 default:
-                    return 'sunny'; // デフォルトは晴れ
+                    return 'sunny';
             }
         }
     </script>
 </body>
 </html>
-
