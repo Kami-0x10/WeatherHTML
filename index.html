@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -113,6 +114,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>天気情報</h1>
     <div class="weather">
@@ -245,64 +247,56 @@
             };
             xhr.send();
         }
-        
+
         function getWeatherIconClass(weatherCode) {
             var weatherIconMap = {
-                "100": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "sunny" },
-                "101": { url: "https://cdn-icons-png.flaticon.com/512/414/414825.png", name: "partly cloudy" },
-                "102": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "sunny with occasional rain" },
-                "103": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "sunny" },
-                 "104": { url: "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", name: "partly cloudy" },
-                "200": { url: "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", name: "cloudy" },
-                "201": { url: "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", name: "cloudy" },
-                "202": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "cloudy with occasional rain" },
-                "210": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "rain" },
-                "211": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "rain" },
-                "212": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "heavy rain" },
-                "213": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "rain" },
-                "300": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "rain" },
-                "301": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "light rain" },
-                "302": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "moderate rain" },
-                "303": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "heavy rain" },
-                "304": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "heavy rain" },
-                "305": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "localized rain" },
-                "306": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "severe thunderstorm" },
-                "307": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "severe thunderstorm" },
-                "400": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "snow" },
-                "401": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "light snow" },
-                "402": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "heavy snow" },
-                "403": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "heavy snow" },
-                "404": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "snow with thunder" },
-                "405": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "rain with snow" },
-                "500": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "rain" },
-                "501": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "rain" },
-                "502": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "heavy rain" },
-                "503": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "heavy rain" },
-                "504": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "very heavy rain" },
-                "600": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "snow" },
-                "601": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "light snow" },
-                "602": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "heavy snow" },
-                "603": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "heavy snow" },
-                "604": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "thunder snow" },
-                "700": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "fog" },
-                "701": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "fog" },
-                "702": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "fog" },
-                "800": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "sunny" },
-                "801": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "partly cloudy" },
-                "802": { url: "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", name: "cloudy with occasional sun" },
-                "803": { url: "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", name: "cloudy with occasional sun" },
-                "804": { url: "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", name: "cloudy" }
+                "100": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // sunny
+                "101": "https://cdn-icons-png.flaticon.com/512/414/414825.png", // partly cloudy
+                "102": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // sunny with occasional rain
+                "103": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // sunny
+                "104": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // partly cloudy
+                "200": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // cloudy
+                "201": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // cloudy
+                "202": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // cloudy with occasional rain
+                "210": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
+                "211": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
+                "212": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
+                "213": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
+                "300": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
+                "301": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // light rain
+                "302": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // moderate rain
+                "303": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
+                "304": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
+                "305": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // localized rain
+                "306": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // severe thunderstorm
+                "307": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // severe thunderstorm
+                "400": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // snow
+                "401": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // light snow
+                "402": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
+                "403": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
+                "404": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // snow with thunder
+                "405": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // rain with snow
+                "500": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
+                "501": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
+                "502": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
+                "503": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
+                "504": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // very heavy rain
+                "600": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // snow
+                "601": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // light snow
+                "602": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
+                "603": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
+                "604": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // thunder snow
+                "700": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // fog
+                "701": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // fog
+                "702": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // fog
+                "800": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // sunny
+                "801": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // partly cloudy
+                "802": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // cloudy with occasional sun
+                "803": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // cloudy with occasional sun
+                "804": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png"  // cloudy
             };
 
-            return weatherIconMap[weatherCode] || { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "unknown" };  // Default value
-        }
-
-
-        function formatDate(date) {
-            var year = date.getFullYear();
-            var month = ("0" + (date.getMonth() + 1)).slice(-2);
-            var day = ("0" + date.getDate()).slice(-2);
-            return year + "/" + month + "/" + day;
+            return weatherIconMap[weatherCode] || "https://cdn-icons-png.flaticon.com/512/869/869869.png";  // Default value if not found
         }
 
         function displayWeatherIcons(weatherData) {
@@ -312,7 +306,7 @@
             weatherData.forEach(function (data) {
                 var icon = document.createElement('div');
                 icon.classList.add('weather-icon');
-                icon.innerHTML = `<img src="${data.iconClass}.png" alt="Weather Icon">`;
+                icon.innerHTML = `<img src="${data.iconClass}" alt="Weather Icon">`;  // Corrected to use iconClass directly as URL
                 container.appendChild(icon);
 
                 var forecastDay = document.createElement('div');
@@ -321,6 +315,7 @@
                 container.appendChild(forecastDay);
             });
         }
+
 
         function getLocalStorageItem(key) {
             return localStorage.getItem(key);
@@ -331,5 +326,5 @@
         }
     </script>
 </body>
+
 </html>
-        
