@@ -9,12 +9,79 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            background-color: #f0f0f0;
         }
+        
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
         .weather {
             margin-top: 20px;
+            text-align: center;
         }
+
         .weather p {
-            font-size: 16px;
+            font-size: 18px;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .weather-icon {
+            width: 50px;
+            height: 50px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* アイコンのサイズと配置 */
+        .weather-icon.sunny {
+            background: url('https://www.iconfinder.com/icons/414849/sun_weather_icon') no-repeat center center;
+            background-size: contain;
+        }
+
+        .weather-icon.cloudy {
+            background: url('https://www.iconfinder.com/icons/414850/cloud_weather_icon') no-repeat center center;
+            background-size: contain;
+        }
+
+        .weather-icon.rainy {
+            background: url('https://www.iconfinder.com/icons/414851/rain_weather_icon') no-repeat center center;
+            background-size: contain;
+        }
+
+        /* iOS6対応のレスポンシブデザイン */
+        @media only screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            button {
+                width: 100%;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -26,6 +93,7 @@
         <p id="location"></p>
         <p id="temp"></p>
         <p id="forecast"></p>
+        <div id="weather-icon" class="weather-icon"></div>
     </div>
 
     <script>
@@ -49,10 +117,14 @@
                         var forecast = weatherInfo.weatherCodes[0];
                         var temp = weatherInfo.temperature.max ? "最高気温: " + weatherInfo.temperature.max.celsius + "°C" : "情報なし";
 
+                        // 天気コードに基づいてアイコンを設定
+                        var iconClass = getWeatherIconClass(forecast);
+
                         // HTMLに表示
                         document.getElementById('location').textContent = '場所: ' + location;
                         document.getElementById('forecast').textContent = '天気: ' + forecast;
                         document.getElementById('temp').textContent = temp;
+                        document.getElementById('weather-icon').className = 'weather-icon ' + iconClass;
 
                     } catch (error) {
                         console.error('エラーが発生しました:', error);
@@ -61,6 +133,20 @@
                 }
             };
             xhr.send();
+        }
+
+        function getWeatherIconClass(weatherCode) {
+            // 天気コードに基づいてアイコンのクラスを返す
+            switch (weatherCode) {
+                case '1': // 晴れ
+                    return 'sunny';
+                case '2': // 曇り
+                    return 'cloudy';
+                case '3': // 雨
+                    return 'rainy';
+                default:
+                    return 'sunny'; // デフォルトは晴れ
+            }
         }
     </script>
 </body>
