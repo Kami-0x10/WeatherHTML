@@ -36,23 +36,21 @@
             margin: 0 auto;
         }
 
-        /* iOS6に対応したアイコンの表示方法 */
         .weather-icon.sunny {
             background: url('https://cdn-icons-png.flaticon.com/512/869/869869.png') no-repeat center center;
-            background-size: 50px 50px;
+            background-size: contain;
         }
 
         .weather-icon.cloudy {
             background: url('https://cdn-icons-png.flaticon.com/512/414/414825.png') no-repeat center center;
-            background-size: 50px 50px;
+            background-size: contain;
         }
 
         .weather-icon.rainy {
             background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
-            background-size: 50px 50px;
+            background-size: contain;
         }
 
-        /* メディアクエリでのiOS6対応 */
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -60,10 +58,6 @@
 
             h1 {
                 font-size: 20px;
-            }
-
-            .weather p {
-                font-size: 16px;
             }
         }
     </style>
@@ -75,31 +69,45 @@
         <p id="location">場所: 取得中...</p>
         <p id="temp">温度: 取得中...</p>
         <p id="forecast">天気: 取得中...</p>
-        <p id="detailed-forecast">詳細予報: 取得中...</p>
+        <p id="wind">風速: 取得中...</p>
         <div id="weather-icon" class="weather-icon"></div>
     </div>
 
     <script>
         window.onload = function () {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        var lat = position.coords.latitude;
-                        var lon = position.coords.longitude;
-                        console.log('位置情報取得成功:', lat, lon); // 位置情報のログ
-                        getWeatherByLocation(lat, lon);
-                    },
-                    function (error) {
-                        console.error('位置情報の取得に失敗:', error.message); // エラーメッセージをログに出力
-                        alert('位置情報の取得に失敗しました: ' + error.message);
-                    },
-                    { timeout: 10000 } // タイムアウトを設定して、取得が遅い場合にも対応
-                );
-            } else {
-                alert('このブラウザは位置情報をサポートしていません。');
-            }
+            getLocationByIP();
         };
 
+        // IPアドレスを使って位置情報を取得
+        function getLocationByIP() {
+            var apiUrl = 'https://ipinfo.io/json?token=YOUR_API_TOKEN'; // ipinfo.ioのAPIを使用
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', apiUrl, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            console.log('位置情報:', data); // 取得した位置情報のログ
+                            var location = data.city;
+                            var loc = data.loc.split(',');
+                            var lat = loc[0];
+                            var lon = loc[1];
+                            getWeatherByLocation(lat, lon);
+                        } catch (error) {
+                            console.error('位置情報取得エラー:', error);
+                            alert('位置情報の取得に失敗しました。');
+                        }
+                    } else {
+                        console.error('位置情報の取得に失敗:', xhr.status, xhr.statusText);
+                        alert('位置情報の取得に失敗しました。');
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // 位置情報をもとに天気情報を取得
         function getWeatherByLocation(lat, lon) {
             var apiUrl = 'https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json'; // CORSプロキシを通す
             var xhr = new XMLHttpRequest();
@@ -111,23 +119,24 @@
                             var data = JSON.parse(xhr.responseText);
                             console.log('APIレスポンス:', data); // APIレスポンスの内容をログに表示
 
-                            // レスポンス構造の確認
                             if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
                                 var areaInfo = data[0].timeSeries[0].areas[0];
                                 var location = areaInfo.area.name;
                                 var forecast = areaInfo.weatherCodes[0];
-                                var detailedForecast = getDetailedForecast(forecast);
-
-                                // temperatureオブジェクトが存在するか確認してからアクセス
                                 var temp = '温度情報なし';
                                 if (areaInfo.temperature && areaInfo.temperature.max) {
                                     temp = "最高気温: " + areaInfo.temperature.max.celsius + "°C";
                                 }
 
+                                var windSpeed = '風速情報なし';
+                                if (areaInfo.wind && areaInfo.wind.speed) {
+                                    windSpeed = "風速: " + areaInfo.wind.speed + " m/s";
+                                }
+
                                 document.getElementById('location').textContent = '場所: ' + location;
                                 document.getElementById('forecast').textContent = '天気: ' + forecast;
                                 document.getElementById('temp').textContent = temp;
-                                document.getElementById('detailed-forecast').textContent = '詳細予報: ' + detailedForecast;
+                                document.getElementById('wind').textContent = windSpeed;
                                 document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                             } else {
                                 console.error('無効な天気データ');
@@ -156,19 +165,6 @@
                     return 'rainy';
                 default:
                     return 'sunny';
-            }
-        }
-
-        function getDetailedForecast(weatherCode) {
-            switch (weatherCode) {
-                case '100':
-                    return "晴れ";
-                case '200':
-                    return "曇り";
-                case '300':
-                    return "雨";
-                default:
-                    return "不明";
             }
         }
     </script>
