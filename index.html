@@ -76,42 +76,28 @@
 
     <script>
         window.onload = function () {
-            getLocationFromIP();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        console.log('位置情報取得成功:', lat, lon); // 位置情報のログ
+                        getWeatherByLocation(lat, lon);
+                    },
+                    function (error) {
+                        console.error('位置情報の取得に失敗:', error.message); // エラーメッセージをログに出力
+                        alert('位置情報の取得に失敗しました: ' + error.message);
+                    },
+                    { timeout: 10000 } // タイムアウトを設定して、取得が遅い場合にも対応
+                );
+            } else {
+                // 位置情報が取得できない場合の代替手段
+                alert('位置情報の取得に失敗しました。手動で場所を入力してください。');
+            }
         };
 
-        function getLocationFromIP() {
-            // IPアドレスから位置情報を取得するAPI (ipinfo.io)
-            var apiUrl = 'https://ipinfo.io/json?token=YOUR_TOKEN';  // 'YOUR_TOKEN' を取得したAPIキーに置き換える
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', apiUrl, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        console.log('IPベースの位置情報:', data);  // 位置情報のログ
-
-                        var loc = data.loc.split(',');  // 位置情報 (緯度, 経度)
-                        var lat = loc[0];
-                        var lon = loc[1];
-
-                        // 位置情報が取得できたら天気情報を取得
-                        getWeatherByLocation(lat, lon);
-                    } catch (error) {
-                        console.error('位置情報の取得エラー:', error);
-                        alert('IPアドレスから位置情報を取得できませんでした。');
-                    }
-                } else if (xhr.readyState === 4) {
-                    console.error('位置情報の取得に失敗しました:', xhr.status, xhr.statusText);
-                    alert('位置情報の取得に失敗しました。');
-                }
-            };
-            xhr.send();
-        }
-
         function getWeatherByLocation(lat, lon) {
-            // 使用するAPI URL（例: 一週間分の天気予報）
-            var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json`; // CORSプロキシを通す
+            var apiUrl = 'https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json'; // CORSプロキシを通す
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -119,29 +105,25 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            console.log('APIレスポンス:', data); // APIレスポンスの内容をログに表示
+                            console.log('APIレスポンス:', data);
 
-                            // レスポンス構造の確認
                             if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
                                 var areaInfo = data[0].timeSeries[0].areas[0];
                                 var location = areaInfo.area.name;
 
                                 document.getElementById('location').textContent = '場所: ' + location;
 
-                                // 一週間分の天気情報を表示
                                 var weatherIconsContainer = document.getElementById('weather-icons');
-                                weatherIconsContainer.innerHTML = ''; // 以前の情報を削除
+                                weatherIconsContainer.innerHTML = '';
 
                                 for (let i = 0; i < 7; i++) {
                                     var weatherCode = areaInfo.weatherCodes[i];
                                     var iconClass = getWeatherIconClass(weatherCode);
 
-                                    // 日付を計算
                                     var date = new Date();
                                     date.setDate(date.getDate() + i);
                                     var formattedDate = formatDate(date);
 
-                                    // 天気アイコンと日付を表示
                                     var iconDiv = document.createElement('div');
                                     iconDiv.className = 'weather-icon ' + iconClass;
 
@@ -184,7 +166,7 @@
 
         function formatDate(date) {
             var year = date.getFullYear();
-            var month = date.getMonth() + 1; // 月は0から始まるので+1
+            var month = date.getMonth() + 1;
             var day = date.getDate();
 
             return `${year}年${month}月${day}日`;
