@@ -80,10 +80,10 @@
         };
 
         function getLocationFromIP() {
-            // IP Geolocation APIを使ってIPアドレスから場所を取得
-            var apiUrl = 'https://ip-api.com/json';  // 無料のIP Geolocation API
+            // ipgeolocation.io APIを使ってIPアドレスから場所を取得
+            var apiUrl = 'https://api.ipgeolocation.io/ipgeo?apiKey=YOUR_API_KEY';  // 取得したAPIキーを設定
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', apiUrl, true);
+            xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
@@ -92,8 +92,8 @@
                             console.log('IPから取得した場所:', locationData);
 
                             var city = locationData.city;
-                            var region = locationData.regionName;
-                            var country = locationData.country;
+                            var region = locationData.state_prov;
+                            var country = locationData.country_name;
 
                             // 位置情報を表示
                             document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
