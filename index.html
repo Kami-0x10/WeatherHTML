@@ -11,7 +11,7 @@
             padding: 20px;
             background-color: #f0f0f0;
         }
-
+        
         h1 {
             text-align: center;
             font-size: 24px;
@@ -36,21 +36,23 @@
             margin: 0 auto;
         }
 
+        /* アイコンのサイズと配置 */
         .weather-icon.sunny {
-            background: url('https://cdn-icons-png.flaticon.com/512/869/869869.png') no-repeat center center;
+            background: url('https://www.iconfinder.com/icons/414849/sun_weather_icon') no-repeat center center;
             background-size: contain;
         }
 
         .weather-icon.cloudy {
-            background: url('https://cdn-icons-png.flaticon.com/512/414/414825.png') no-repeat center center;
+            background: url('https://www.iconfinder.com/icons/414850/cloud_weather_icon') no-repeat center center;
             background-size: contain;
         }
 
         .weather-icon.rainy {
-            background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
+            background: url('https://www.iconfinder.com/icons/414851/rain_weather_icon') no-repeat center center;
             background-size: contain;
         }
 
+        /* iOS6対応のレスポンシブデザイン */
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -66,69 +68,84 @@
     <h1>天気情報</h1>
 
     <div class="weather">
-        <p id="location">場所: 取得中...</p>
-        <p id="temp">温度: 取得中...</p>
-        <p id="forecast">天気: 取得中...</p>
+        <p id="location"></p>
+        <p id="temp"></p>
+        <p id="forecast"></p>
         <div id="weather-icon" class="weather-icon"></div>
     </div>
 
     <script>
-        window.onload = function () {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        var lat = position.coords.latitude;
-                        var lon = position.coords.longitude;
-                        getWeatherByLocation(lat, lon);
-                    },
-                    function (error) {
-                        alert('位置情報の取得に失敗しました: ' + error.message);
-                    }
-                );
-            } else {
-                alert('このブラウザは位置情報をサポートしていません。');
-            }
+        // ページがロードされたら自動で位置情報を取得
+        window.onload = function() {
+            getLocation();
         };
 
-        function getWeatherByLocation(lat, lon) {
-            var apiUrl = 'https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json';
+        function getLocation() {
+            if (navigator.geolocation) {
+                // 位置情報を取得
+                navigator.geolocation.getCurrentPosition(showWeather, showError);
+            } else {
+                alert("このブラウザでは位置情報がサポートされていません。");
+            }
+        }
+
+        function showWeather(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+            getWeather(lat, lon);
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("位置情報の取得が拒否されました。");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("位置情報が利用できません。");
+                    break;
+                case error.TIMEOUT:
+                    alert("位置情報の取得がタイムアウトしました。");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("不明なエラーが発生しました。");
+                    break;
+            }
+        }
+
+        function getWeather(lat, lon) {
+            // 位置情報を使って天気情報を取得
+            var apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=YOUR_API_KEY&lang=ja&units=metric`;
+            
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
                     try {
+                        // JSONデータをパース
                         var data = JSON.parse(xhr.responseText);
 
-                        var areaInfo = data[0].timeSeries[0].areas[0];
-                        var location = areaInfo.area.name;
-                        var forecast = areaInfo.weatherCodes[0];
-                        var temp = areaInfo.temperature.max ?
-                            "最高気温: " + areaInfo.temperature.max.celsius + "°C" :
-                            "温度情報なし";
+                        // 取得したデータから必要な情報を抽出
+                        var location = data.name; // 地名
+                        var temp = "気温: " + data.main.temp + "°C"; // 温度
+                        var forecast = data.weather[0].description; // 天気の説明
+                        var icon = data.weather[0].icon; // 天気アイコン
 
+                        // アイコンのURL
+                        var iconUrl = `http://openweathermap.org/img/wn/${icon}@2x.png`;
+
+                        // HTMLに表示
                         document.getElementById('location').textContent = '場所: ' + location;
                         document.getElementById('forecast').textContent = '天気: ' + forecast;
                         document.getElementById('temp').textContent = temp;
-                        document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
+                        document.getElementById('weather-icon').style.backgroundImage = `url(${iconUrl})`;
+
                     } catch (error) {
-                        alert('天気情報の取得中にエラーが発生しました。');
+                        console.error('エラーが発生しました:', error);
+                        alert('天気情報の取得に失敗しました。');
                     }
                 }
             };
             xhr.send();
-        }
-
-        function getWeatherIconClass(weatherCode) {
-            switch (weatherCode) {
-                case '100':
-                    return 'sunny';
-                case '200':
-                    return 'cloudy';
-                case '300':
-                    return 'rainy';
-                default:
-                    return 'sunny';
-            }
         }
     </script>
 </body>
