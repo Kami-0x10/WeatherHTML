@@ -37,6 +37,14 @@
             background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
             background-size: contain;
         }
+        .weather-icon.snowy {
+            background: url('https://cdn-icons-png.flaticon.com/512/414/414834.png') no-repeat center center;
+            background-size: contain;
+        }
+        .weather-icon.thunderstorm {
+            background: url('https://cdn-icons-png.flaticon.com/512/1146/1146869.png') no-repeat center center;
+            background-size: contain;
+        }
         .forecast-day {
             margin-top: 10px;
             font-size: 16px;
@@ -188,6 +196,8 @@
                 case '100': return 'sunny';
                 case '200': return 'cloudy';
                 case '300': return 'rainy';
+                case '400': return 'snowy';
+                case '500': return 'thunderstorm';
                 default: return 'sunny';
             }
         }
