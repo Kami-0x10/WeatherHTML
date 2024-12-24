@@ -36,21 +36,23 @@
             margin: 0 auto;
         }
 
+        /* iOS6に対応したアイコンの表示方法 */
         .weather-icon.sunny {
             background: url('https://cdn-icons-png.flaticon.com/512/869/869869.png') no-repeat center center;
-            background-size: contain;
+            background-size: 50px 50px;
         }
 
         .weather-icon.cloudy {
             background: url('https://cdn-icons-png.flaticon.com/512/414/414825.png') no-repeat center center;
-            background-size: contain;
+            background-size: 50px 50px;
         }
 
         .weather-icon.rainy {
             background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
-            background-size: contain;
+            background-size: 50px 50px;
         }
 
+        /* メディアクエリでのiOS6対応 */
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -58,6 +60,10 @@
 
             h1 {
                 font-size: 20px;
+            }
+
+            .weather p {
+                font-size: 16px;
             }
         }
     </style>
@@ -69,6 +75,7 @@
         <p id="location">場所: 取得中...</p>
         <p id="temp">温度: 取得中...</p>
         <p id="forecast">天気: 取得中...</p>
+        <p id="detailed-forecast">詳細予報: 取得中...</p>
         <div id="weather-icon" class="weather-icon"></div>
     </div>
 
@@ -109,6 +116,7 @@
                                 var areaInfo = data[0].timeSeries[0].areas[0];
                                 var location = areaInfo.area.name;
                                 var forecast = areaInfo.weatherCodes[0];
+                                var detailedForecast = getDetailedForecast(forecast);
 
                                 // temperatureオブジェクトが存在するか確認してからアクセス
                                 var temp = '温度情報なし';
@@ -119,6 +127,7 @@
                                 document.getElementById('location').textContent = '場所: ' + location;
                                 document.getElementById('forecast').textContent = '天気: ' + forecast;
                                 document.getElementById('temp').textContent = temp;
+                                document.getElementById('detailed-forecast').textContent = '詳細予報: ' + detailedForecast;
                                 document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                             } else {
                                 console.error('無効な天気データ');
@@ -147,6 +156,19 @@
                     return 'rainy';
                 default:
                     return 'sunny';
+            }
+        }
+
+        function getDetailedForecast(weatherCode) {
+            switch (weatherCode) {
+                case '100':
+                    return "晴れ";
+                case '200':
+                    return "曇り";
+                case '300':
+                    return "雨";
+                default:
+                    return "不明";
             }
         }
     </script>
