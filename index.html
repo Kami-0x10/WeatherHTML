@@ -4,7 +4,221 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天気情報</title><!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天気情報</title>
+    <style>
+        /* CSSスタイルは前回のコードと同様 */
+    </style>
+</head>
+<body>
+    <h1>天気情報</h1>
+
+    <div class="weather">
+        <p id="location">場所: 取得中...</p>
+        <div id="weather-icons"></div> <!-- 一週間の天気アイコンと日付を表示 -->
+    </div>
+
+    <script>
+        window.onload = function () {
+            // IPアドレスから位置情報を取得する
+            getLocationFromIP();
+        };
+
+        function getLocationFromIP() {
+            // IP Geolocation APIを使ってIPアドレスから場所を取得
+            var apiUrl = 'http://ip-api.com/json';
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', apiUrl, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var locationData = JSON.parse(xhr.responseText);
+                            console.log('IPから取得した場所:', locationData);
+
+                            var city = locationData.city;
+                            var region = locationData.regionName;
+                            var country = locationData.country;
+                            var latitude = locationData.lat;
+                            var longitude = locationData.lon;
+
+                            // 位置情報を表示
+                            document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
+
+                            // 地域名に基づいて地域コードを動的に取得
+                            var regionCode = getRegionCode(region, city);
+
+                            if (regionCode) {
+                                // JMAの天気情報を取得する
+                                getWeatherByLocation(regionCode);
+                            } else {
+                                alert('地域コードが見つかりませんでした。');
+                            }
+                        } catch (error) {
+                            console.error('位置情報取得エラー:', error);
+                            alert('位置情報の取得中にエラーが発生しました。');
+                        }
+                    } else {
+                        console.error('IP Geolocation APIエラー:', xhr.status, xhr.statusText);
+                        alert('位置情報の取得に失敗しました。');
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // 地域名に基づいて地域コードを取得する
+        function getRegionCode(region, city) {
+            // 都道府県名と地域コードのマッピング（例）
+var regionCodes = {
+    '北海道': '010000',
+    '青森県': '020000',
+    '岩手県': '030000',
+    '宮城県': '040000',
+    '秋田県': '050000',
+    '山形県': '060000',
+    '福島県': '070000',
+    '茨城県': '080000',
+    '栃木県': '090000',
+    '群馬県': '100000',
+    '埼玉県': '110000',
+    '千葉県': '120000',
+    '東京都': '130000',
+    '神奈川県': '140000',
+    '新潟県': '150000',
+    '富山県': '160000',
+    '石川県': '170000',
+    '福井県': '180000',
+    '山梨県': '190000',
+    '長野県': '200000',
+    '岐阜県': '210000',
+    '静岡県': '220000',
+    '愛知県': '230000',
+    '三重県': '240000',
+    '滋賀県': '250000',
+    '京都府': '260000',
+    '大阪府': '270000',
+    '兵庫県': '280000',
+    '奈良県': '290000',
+    '和歌山県': '300000',
+    '鳥取県': '310000',
+    '島根県': '320000',
+    '岡山県': '330000',
+    '広島県': '340000',
+    '山口県': '350000',
+    '徳島県': '360000',
+    '香川県': '370000',
+    '愛媛県': '380000',
+    '高知県': '390000',
+    '福岡県': '400000',
+    '佐賀県': '410000',
+    '長崎県': '420000',
+    '熊本県': '430000',
+    '大分県': '440000',
+    '宮崎県': '450000',
+    '鹿児島県': '460000',
+    '沖縄県': '470000'
+};
+
+
+            // 地域コードの取得
+            if (regionCodes[region]) {
+                return regionCodes[region];
+            } else {
+                // 都市名もチェック（都市名に基づいて補完する場合）
+                if (city && city.includes('渋谷')) {
+                    return '130000'; // 渋谷の例（東京都）
+                }
+                // 他の都市名に基づいたロジックを追加することができます
+                return null; // 見つからない場合
+            }
+        }
+
+        function getWeatherByLocation(regionCode) {
+            // 例: 渋谷の地域コード (130000)を利用した天気情報の取得
+            var apiUrl = `https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`; 
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', apiUrl, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            console.log('APIレスポンス:', data);
+
+                            if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
+                                var areaInfo = data[0].timeSeries[0].areas[0];
+                                var location = areaInfo.area.name;
+
+                                document.getElementById('location').textContent = '場所: ' + location;
+
+                                var weatherIconsContainer = document.getElementById('weather-icons');
+                                weatherIconsContainer.innerHTML = '';
+
+                                for (let i = 0; i < 7; i++) {
+                                    var weatherCode = areaInfo.weatherCodes[i];
+                                    var iconClass = getWeatherIconClass(weatherCode);
+
+                                    var date = new Date();
+                                    date.setDate(date.getDate() + i);
+                                    var formattedDate = formatDate(date);
+
+                                    var iconDiv = document.createElement('div');
+                                    iconDiv.className = 'weather-icon ' + iconClass;
+
+                                    var dayDiv = document.createElement('div');
+                                    dayDiv.className = 'forecast-day';
+                                    dayDiv.innerHTML = `<span>${formattedDate}</span>`;
+
+                                    weatherIconsContainer.appendChild(iconDiv);
+                                    weatherIconsContainer.appendChild(dayDiv);
+                                }
+                            } else {
+                                console.error('無効な天気データ');
+                                alert('天気情報のレスポンスが無効です。');
+                            }
+                        } catch (error) {
+                            console.error('天気情報の解析エラー:', error);
+                            alert('天気情報の取得中にエラーが発生しました。');
+                        }
+                    } else {
+                        console.error('天気情報の取得に失敗しました:', xhr.status, xhr.statusText);
+                        alert('天気情報の取得に失敗しました。');
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        function getWeatherIconClass(weatherCode) {
+            switch (weatherCode) {
+                case '100':
+                    return 'sunny';
+                case '200':
+                    return 'cloudy';
+                case '300':
+                    return 'rainy';
+                default:
+                    return 'sunny';
+            }
+        }
+
+        function formatDate(date) {
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+
+            return `${year}年${month}月${day}日`;
+        }
+    </script>
+</body>
+</html>
+
     <style>
         body {
             font-family: Arial, sans-serif;
