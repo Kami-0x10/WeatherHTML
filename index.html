@@ -23,12 +23,6 @@
             text-align: center;
         }
 
-        .weather p {
-            font-size: 18px;
-            margin: 10px 0;
-            color: #333;
-        }
-
         .weather-icon {
             width: 50px;
             height: 50px;
@@ -67,9 +61,7 @@
 
     <div class="weather">
         <p id="location">場所: 取得中...</p>
-        <!--<p id="temp">温度: 取得中...</p>-->
-        <!--<p id="forecast">天気: 取得中...</p>-->
-        <div id="weather-icon" class="weather-icon"></div>
+        <div id="weather-icons"></div> <!-- ここに一週間の天気アイコンを表示 -->
     </div>
 
     <script>
@@ -94,7 +86,8 @@
         };
 
         function getWeatherByLocation(lat, lon) {
-            var apiUrl = 'https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json'; // CORSプロキシを通す
+            // 使用するAPI URL（例: 一週間分の天気予報）
+            var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json`; // CORSプロキシを通す
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -108,18 +101,21 @@
                             if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
                                 var areaInfo = data[0].timeSeries[0].areas[0];
                                 var location = areaInfo.area.name;
-                                var forecast = areaInfo.weatherCodes[0];
-
-                                // temperatureオブジェクトが存在するか確認してからアクセス
-                                var temp = '温度情報なし';
-                                if (areaInfo.temperature && areaInfo.temperature.max) {
-                                    temp = "最高気温: " + areaInfo.temperature.max.celsius + "°C";
-                                }
 
                                 document.getElementById('location').textContent = '場所: ' + location;
-                                document.getElementById('forecast').textContent = '天気: ' + forecast;
-                                document.getElementById('temp').textContent = temp;
-                                document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
+
+                                // 一週間分の天気情報を表示
+                                var weatherIconsContainer = document.getElementById('weather-icons');
+                                weatherIconsContainer.innerHTML = ''; // 以前の情報を削除
+
+                                for (let i = 0; i < 7; i++) {
+                                    var weatherCode = areaInfo.weatherCodes[i];
+                                    var iconClass = getWeatherIconClass(weatherCode);
+
+                                    var iconDiv = document.createElement('div');
+                                    iconDiv.className = 'weather-icon ' + iconClass;
+                                    weatherIconsContainer.appendChild(iconDiv);
+                                }
                             } else {
                                 console.error('無効な天気データ');
                                 alert('天気情報のレスポンスが無効です。');
