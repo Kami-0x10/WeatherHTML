@@ -45,7 +45,6 @@
         .forecast-day span {
             display: block;
         }
-        /* Adjustments for smaller screens */
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -62,64 +61,53 @@
         <p id="location">場所: 取得中...</p>
         <div id="weather-icons"></div> <!-- 一週間の天気アイコンと日付を表示 -->
     </div>
-    
+
     <script>
         window.onload = function () {
-            // 位置情報を取得
             getLocation();
         };
 
         function getLocation() {
-            // ローカルストレージから保存された位置情報を取得
             var cachedLocation = getLocalStorageItem('locationData');
             var lastUpdated = getLocalStorageItem('lastUpdated');
-
-            // 24時間経過していない場合はキャッシュを使用
             var currentTime = new Date().getTime();
+
             if (cachedLocation && lastUpdated && (currentTime - lastUpdated) < 86400000) {
-                // キャッシュがあり、24時間以内ならそれを使用
                 var locationData = JSON.parse(cachedLocation);
                 displayLocation(locationData);
+                var region = locationData.region.split(',')[0].trim();
+                var regionCode = getRegionCode(region);
+                if (regionCode) {
+                    var cachedWeatherData = getLocalStorageItem('weatherData');
+                    if (cachedWeatherData) {
+                        displayWeatherIcons(JSON.parse(cachedWeatherData));
+                    } else {
+                        getWeatherByLocation(regionCode);
+                    }
+                }
             } else {
-                // 24時間経過している、またはキャッシュがない場合はAPIから取得
                 getLocationFromIP();
             }
         }
 
         function getLocationFromIP() {
-            var apiUrl = 'https://ipinfo.io/json';  // IP Geolocation API
+            var apiUrl = 'https://ipinfo.io/json';  
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var locationData = JSON.parse(xhr.responseText);
-                            console.log('IPから取得した場所:', locationData);
-
-                            // ローカルストレージに位置情報と取得時刻を保存
-                            setLocalStorageItem('locationData', JSON.stringify(locationData));
-                            setLocalStorageItem('lastUpdated', new Date().getTime());
-
-                            // 位置情報を表示
-                            displayLocation(locationData);
-
-                            var region = locationData.region; // 例: "Saitama, JP"
-                            var regionCode = getRegionCode(region.split(',')[0].trim()); // カンマで分割し最初の部分を取得
-                            if (regionCode) {
-                                getWeatherByLocation(regionCode);
-                            } else {
-                                alert('地域コードが見つかりませんでした。最寄りの地域を取得します。');
-                                regionCode = getClosestRegionCode(region); // 最寄りの地域コード
-                                getWeatherByLocation(regionCode);
-                            }
-                        } catch (error) {
-                            console.error('位置情報取得エラー:', error);
-                            alert('位置情報の取得中にエラーが発生しました。');
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        var locationData = JSON.parse(xhr.responseText);
+                        setLocalStorageItem('locationData', JSON.stringify(locationData));
+                        setLocalStorageItem('lastUpdated', new Date().getTime());
+                        displayLocation(locationData);
+                        var region = locationData.region.split(',')[0].trim();
+                        var regionCode = getRegionCode(region);
+                        if (regionCode) {
+                            getWeatherByLocation(regionCode);
                         }
-                    } else {
-                        console.error('IP Geolocation APIエラー:', xhr.status, xhr.statusText);
-                        alert('位置情報の取得に失敗しました。');
+                    } catch (error) {
+                        console.error('位置情報取得エラー:', error);
                     }
                 }
             };
@@ -128,14 +116,11 @@
 
         function displayLocation(locationData) {
             var city = locationData.city;
-            var region = locationData.region.split(',')[0].trim(); // カンマを除いて都道府県名を取得
+            var region = locationData.region.split(',')[0].trim();
             var country = locationData.country;
-
-            // 位置情報を表示
             document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
         }
 
-        // 地域コードを取得する関数
         function getRegionCode(region) {
             var regionCodes = {
                 'Hokkaido': '010000', 'Aomori': '020000', 'Iwate': '030000', 'Miyagi': '040000', 'Akita': '050000',
@@ -149,11 +134,9 @@
                 'Saga': '410000', 'Nagasaki': '420000', 'Kumamoto': '430000', 'Oita': '440000', 'Miyazaki': '450000',
                 'Kagoshima': '460000', 'Okinawa': '470000'
             };
-
-            return regionCodes[region] || null; // 地域コードが見つからない場合はnullを返す
+            return regionCodes[region] || null;
         }
 
-        // 最寄りの地域コードを取得するためのロジック
         function getClosestRegionCode(regionCode) {
             var regionMapping = {
                 '010000': '010000', '020000': '020000', '030000': '030000', '040000': '040000', '050000': '050000',
@@ -167,7 +150,6 @@
                 '410000': '400000', '420000': '420000', '430000': '430000', '440000': '450000', '450000': '450000',
                 '460000': '460000', '470000': '470000'
             };
-
             return regionMapping[regionCode] || regionCode;
         }
 
@@ -176,42 +158,25 @@
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var data = JSON.parse(xhr.responseText);
-                            console.log('天気データ:', data);
-                            if (data && data[0] && data[0].timeSeries && data[0].timeSeries[0].areas) {
-                                var areaInfo = data[0].timeSeries[0].areas[0];
-                                var weatherIconsContainer = document.getElementById('weather-icons');
-                                weatherIconsContainer.innerHTML = '';
-                                
-                                for (var i = 0; i < 7; i++) {
-                                    var weatherCode = areaInfo.weatherCodes[i];
-                                    var iconClass = getWeatherIconClass(weatherCode);
-
-                                    var date = new Date();
-                                    date.setDate(date.getDate() + i);
-                                    var formattedDate = formatDate(date);
-
-                                    var iconDiv = document.createElement('div');
-                                    iconDiv.className = 'weather-icon ' + iconClass;
-
-                                    var dayDiv = document.createElement('div');
-                                    dayDiv.className = 'forecast-day';
-                                    dayDiv.innerHTML = '<span>' + formattedDate + '</span>';
-
-                                    weatherIconsContainer.appendChild(iconDiv);
-                                    weatherIconsContainer.appendChild(dayDiv);
-                                }
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data[0] && data[0].timeSeries && data[0].timeSeries[0].areas) {
+                            var areaInfo = data[0].timeSeries[0].areas[0];
+                            var weatherData = [];
+                            for (var i = 0; i < 7; i++) {
+                                var weatherCode = areaInfo.weatherCodes[i];
+                                var iconClass = getWeatherIconClass(weatherCode);
+                                var date = new Date();
+                                date.setDate(date.getDate() + i);
+                                var formattedDate = formatDate(date);
+                                weatherData.push({ iconClass: iconClass, date: formattedDate });
                             }
-                        } catch (error) {
-                            console.error('天気情報解析エラー:', error);
-                            alert('天気情報の取得中にエラーが発生しました。');
+                            setLocalStorageItem('weatherData', JSON.stringify(weatherData));
+                            displayWeatherIcons(weatherData);
                         }
-                    } else {
-                        console.error('天気情報の取得に失敗:', xhr.status);
-                        alert('天気情報の取得に失敗しました。');
+                    } catch (error) {
+                        console.error('天気情報解析エラー:', error);
                     }
                 }
             };
@@ -232,6 +197,20 @@
             var month = date.getMonth() + 1;
             var day = date.getDate();
             return year + '年' + month + '月' + day + '日';
+        }
+
+        function displayWeatherIcons(weatherData) {
+            var weatherIconsContainer = document.getElementById('weather-icons');
+            weatherIconsContainer.innerHTML = '';
+            weatherData.forEach(function (data) {
+                var iconDiv = document.createElement('div');
+                iconDiv.className = 'weather-icon ' + data.iconClass;
+                var dayDiv = document.createElement('div');
+                dayDiv.className = 'forecast-day';
+                dayDiv.innerHTML = '<span>' + data.date + '</span>';
+                weatherIconsContainer.appendChild(iconDiv);
+                weatherIconsContainer.appendChild(dayDiv);
+            });
         }
 
         function setLocalStorageItem(key, value) {
