@@ -75,24 +75,29 @@
 
     <script>
         window.onload = function () {
+            // 位置情報を取得
             getLocation();
         };
 
         function getLocation() {
+            // ローカルストレージから保存された位置情報を取得
             var cachedLocation = getLocalStorageItem('locationData');
             var lastUpdated = getLocalStorageItem('lastUpdated');
 
+            // 24時間経過していない場合はキャッシュを使用
             var currentTime = new Date().getTime();
             if (cachedLocation && lastUpdated && (currentTime - lastUpdated) < 86400000) {
+                // キャッシュがあり、24時間以内ならそれを使用
                 var locationData = JSON.parse(cachedLocation);
                 displayLocation(locationData);
             } else {
+                // 24時間経過している、またはキャッシュがない場合はAPIから取得
                 getLocationFromIP();
             }
         }
 
         function getLocationFromIP() {
-            var apiUrl = 'https://ipinfo.io/json'; 
+            var apiUrl = 'https://ipinfo.io/json';  // IP Geolocation API
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -102,9 +107,11 @@
                             var locationData = JSON.parse(xhr.responseText);
                             console.log('IPから取得した場所:', locationData);
 
+                            // ローカルストレージに位置情報と取得時刻を保存
                             setLocalStorageItem('locationData', JSON.stringify(locationData));
                             setLocalStorageItem('lastUpdated', new Date().getTime());
 
+                            // 位置情報を表示
                             displayLocation(locationData);
 
                             var regionCode = getRegionCode(locationData.region);
@@ -118,7 +125,7 @@
                             alert('位置情報の取得中にエラーが発生しました。');
                         }
                     } else {
-                        console.error('位置情報取得エラー:', xhr.status);
+                        console.error('IP Geolocation APIエラー:', xhr.status, xhr.statusText);
                         alert('位置情報の取得に失敗しました。');
                     }
                 }
@@ -130,10 +137,12 @@
             var city = locationData.city;
             var region = locationData.region;
             var country = locationData.country;
+
+            // 位置情報を表示
             document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
         }
 
-        // ローマ字地域名と地域コードを対応付けたマップ
+        // 地域コードを取得する関数
         function getRegionCode(region) {
             var regionCodes = {
                 'Hokkaido': '010000', 'Aomori': '020000', 'Iwate': '030000', 'Miyagi': '040000', 'Akita': '050000',
@@ -148,8 +157,71 @@
                 'Kagoshima': '460000', 'Okinawa': '470000'
             };
 
-            // ローマ字地域名に対応する地域コードを取得
-            return regionCodes[region] || null;
+            // 地域コードを探す（部分一致を使って）
+            for (var key in regionCodes) {
+                if (region.indexOf(key) !== -1) {
+                    return regionCodes[key];
+                }
+            }
+
+            // 地域コードが見つからない場合に最寄りのコードを決定する
+            return getClosestRegionCode(region);
+        }
+
+        // 最寄りの地域コードを取得するためのロジック（仮実装）
+        function getClosestRegionCode(region) {
+            // 例：東京が含まれる場合は東京都を返す
+function getClosestRegionCode(region) {
+        if (region.includes('Tokyo')) return '130000';
+        if (region.includes('Osaka')) return '270000';
+        if (region.includes('Nagoya')) return '230000'; // 愛知県
+        if (region.includes('Sapporo')) return '010000'; // 北海道
+        if (region.includes('Fukuoka')) return '400000'; // 福岡県
+    if (region.includes('Kobe')) return '280000'; // 兵庫県
+    if (region.includes('Kyoto')) return '260000'; // 京都府
+    if (region.includes('Sendai')) return '040000'; // 宮城県
+    if (region.includes('Hiroshima')) return '340000'; // 広島県
+    if (region.includes('Kawasaki')) return '140000'; // 神奈川県
+    if (region.includes('Saitama')) return '110000'; // 埼玉県
+    if (region.includes('Chiba')) return '120000'; // 千葉県
+    if (region.includes('Hokkaido')) return '010000'; // 北海道
+    if (region.includes('Miyagi')) return '040000'; // 宮城県
+    if (region.includes('Niigata')) return '150000'; // 新潟県
+    if (region.includes('Shizuoka')) return '220000'; // 静岡県
+    if (region.includes('Okinawa')) return '470000'; // 沖縄県
+    if (region.includes('Kagoshima')) return '460000'; // 鹿児島県
+    if (region.includes('Yokohama')) return '140000'; // 神奈川県
+    if (region.includes('Kitakyushu')) return '400000'; // 福岡県
+    if (region.includes('Chuo')) return '130000'; // 東京23区
+    if (region.includes('Utsunomiya')) return '090000'; // 栃木県
+    if (region.includes('Kochi')) return '390000'; // 高知県
+    if (region.includes('Akita')) return '050000'; // 秋田県
+    if (region.includes('Aomori')) return '020000'; // 青森県
+    if (region.includes('Ibaraki')) return '080000'; // 茨城県
+    if (region.includes('Takamatsu')) return '370000'; // 香川県
+    if (region.includes('Nagano')) return '200000'; // 長野県
+    if (region.includes('Oita')) return '440000'; // 大分県
+    if (region.includes('Toyama')) return '160000'; // 富山県
+    if (region.includes('Gifu')) return '210000'; // 岐阜県
+    if (region.includes('Mie')) return '240000'; // 三重県
+    if (region.includes('Shiga')) return '250000'; // 滋賀県
+    if (region.includes('Yamagata')) return '060000'; // 山形県
+    if (region.includes('Yamaguchi')) return '350000'; // 山口県
+    if (region.includes('Tottori')) return '310000'; // 鳥取県
+    if (region.includes('Shimane')) return '320000'; // 島根県
+    if (region.includes('Okayama')) return '330000'; // 岡山県
+    if (region.includes('Ehime')) return '380000'; // 愛媛県
+    if (region.includes('Fukui')) return '180000'; // 福井県
+    if (region.includes('Yamanashi')) return '190000'; // 山梨県
+    if (region.includes('Ishikawa')) return '170000'; // 石川県
+    if (region.includes('Kagawa')) return '370000'; // 香川県
+    if (region.includes('Akita')) return '050000'; // 秋田県
+        if (region.includes('Chugoku')) return '330000'; // 中国地方
+
+        // 上記に該当しない場合はデフォルトで東京（130000）を返す
+        return '130000';
+    }
+
         }
 
         function getWeatherByLocation(regionCode) {
