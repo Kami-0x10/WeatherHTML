@@ -116,11 +116,14 @@
                             // 位置情報を表示
                             displayLocation(locationData);
 
-                            var regionCode = getRegionCode(locationData.region);
+                            var region = locationData.region; // 例: "Saitama"
+                            var regionCode = getRegionCode(region);
                             if (regionCode) {
                                 getWeatherByLocation(regionCode);
                             } else {
-                                alert('地域コードが見つかりませんでした。');
+                                alert('地域コードが見つかりませんでした。最寄りの地域を取得します。');
+                                regionCode = getClosestRegionCode(region); // 最寄りの地域コード
+                                getWeatherByLocation(regionCode);
                             }
                         } catch (error) {
                             console.error('位置情報取得エラー:', error);
@@ -159,74 +162,69 @@
                 'Kagoshima': '460000', 'Okinawa': '470000'
             };
 
-            // 地域コードを探す（部分一致を使って）
-            for (var key in regionCodes) {
-                if (region.indexOf(key) !== -1) {
-                    return regionCodes[key];
-                }
-            }
-
-            // 地域コードが見つからない場合に最寄りのコードを決定する
-            return getClosestRegionCode(region);
+            return regionCodes[region] || null; // 地域コードが見つからない場合はnullを返す
         }
 
-        // 最寄りの地域コードを取得するためのロジック（仮実装）
-        function getClosestRegionCode(region) {
-            // 例：東京が含まれる場合は東京都を返す
-            function getClosestRegionCode(region) {
-                if (region.includes('Tokyo')) return '130000';
-                if (region.includes('Osaka')) return '270000';
-                if (region.includes('Nagoya')) return '230000'; // 愛知県
-                if (region.includes('Sapporo')) return '010000'; // 北海道
-                if (region.includes('Fukuoka')) return '400000'; // 福岡県
-                if (region.includes('Kobe')) return '280000'; // 兵庫県
-                if (region.includes('Kyoto')) return '260000'; // 京都府
-                if (region.includes('Sendai')) return '040000'; // 宮城県
-                if (region.includes('Hiroshima')) return '340000'; // 広島県
-                if (region.includes('Kawasaki')) return '140000'; // 神奈川県
-                if (region.includes('Saitama')) return '110000'; // 埼玉県
-                if (region.includes('Chiba')) return '120000'; // 千葉県
-                if (region.includes('Hokkaido')) return '010000'; // 北海道
-                if (region.includes('Miyagi')) return '040000'; // 宮城県
-                if (region.includes('Niigata')) return '150000'; // 新潟県
-                if (region.includes('Shizuoka')) return '220000'; // 静岡県
-                if (region.includes('Okinawa')) return '470000'; // 沖縄県
-                if (region.includes('Kagoshima')) return '460000'; // 鹿児島県
-                if (region.includes('Yokohama')) return '140000'; // 神奈川県
-                if (region.includes('Kitakyushu')) return '400000'; // 福岡県
-                if (region.includes('Chuo')) return '130000'; // 東京23区
-                if (region.includes('Utsunomiya')) return '090000'; // 栃木県
-                if (region.includes('Kochi')) return '390000'; // 高知県
-                if (region.includes('Akita')) return '050000'; // 秋田県
-                if (region.includes('Aomori')) return '020000'; // 青森県
-                if (region.includes('Ibaraki')) return '080000'; // 茨城県
-                if (region.includes('Takamatsu')) return '370000'; // 香川県
-                if (region.includes('Nagano')) return '200000'; // 長野県
-                if (region.includes('Oita')) return '440000'; // 大分県
-                if (region.includes('Toyama')) return '160000'; // 富山県
-                if (region.includes('Gifu')) return '210000'; // 岐阜県
-                if (region.includes('Mie')) return '240000'; // 三重県
-                if (region.includes('Shiga')) return '250000'; // 滋賀県
-                if (region.includes('Yamagata')) return '060000'; // 山形県
-                if (region.includes('Yamaguchi')) return '350000'; // 山口県
-                if (region.includes('Tottori')) return '310000'; // 鳥取県
-                if (region.includes('Shimane')) return '320000'; // 島根県
-                if (region.includes('Okayama')) return '330000'; // 岡山県
-                if (region.includes('Ehime')) return '380000'; // 愛媛県
-                if (region.includes('Fukui')) return '180000'; // 福井県
-                if (region.includes('Yamanashi')) return '190000'; // 山梨県
-                if (region.includes('Ishikawa')) return '170000'; // 石川県
-                if (region.includes('Kagawa')) return '370000'; // 香川県
-                if (region.includes('Akita')) return '050000'; // 秋田県
-                if (region.includes('Chugoku')) return '330000'; // 中国地方
+        // 最寄りの地域コードを取得するためのロジック
+        function getClosestRegionCode(regionCode) {
+            // 地域コードマッピング
+            var regionMapping = {
+                '010000': '010000', // 北海道
+                '020000': '020000', // 青森
+                '030000': '030000', // 岩手
+                '040000': '040000', // 宮城
+                '050000': '050000', // 秋田
+                '060000': '060000', // 山形
+                '070000': '070000', // 福島
+                '080000': '080000', // 茨城
+                '090000': '090000', // 栃木
+                '100000': '100000', // 群馬
+                '110000': '130000', // 埼玉 -> 東京
+                '120000': '130000', // 千葉 -> 東京
+                '130000': '130000', // 東京
+                '140000': '130000', // 神奈川 -> 東京
+                '150000': '150000', // 新潟
+                '160000': '160000', // 富山
+                '170000': '170000', // 石川
+                '180000': '130000', // 福井 -> 大阪
+                '190000': '130000', // 山梨 -> 東京
+                '200000': '200000', // 長野
+                '210000': '210000', // 岐阜
+                '220000': '220000', // 静岡
+                '230000': '230000', // 愛知
+                '240000': '230000', // 三重 -> 愛知
+                '250000': '250000', // 滋賀
+                '260000': '250000', // 京都 -> 大阪
+                '270000': '270000', // 大阪
+                '280000': '270000', // 兵庫 -> 大阪
+                '290000': '270000', // 奈良 -> 大阪
+                '300000': '270000', // 和歌山 -> 大阪
+                '310000': '330000', // 鳥取 -> 岡山
+                '320000': '330000', // 島根 -> 岡山
+                '330000': '340000', // 岡山 -> 広島
+                '340000': '350000', // 広島 -> 山口
+                '350000': '350000', // 山口
+                '360000': '370000', // 徳島 -> 香川
+                '370000': '380000', // 香川 -> 愛媛
+                '380000': '390000', // 愛媛 -> 高知
+                '390000': '390000', // 高知
+                '400000': '400000', // 福岡
+                '410000': '400000', // 佐賀 -> 福岡
+                '420000': '420000', // 長崎
+                '430000': '430000', // 熊本
+                '440000': '450000', // 大分 -> 宮崎
+                '450000': '450000', // 宮崎
+                '460000': '460000', // 鹿児島
+                '470000': '470000', // 沖縄
+            };
 
-                // 上記に該当しない場合はデフォルトで東京（130000）を返す
-                return '130000';
-            }
-
+            // 指定された地域コードが存在する場合、対応する最寄りの地域コードを返す
+            return regionMapping[regionCode] || regionCode; // マッピングが存在しない場合はそのまま返す
         }
+
 
         function getWeatherByLocation(regionCode) {
+            // 最初に指定された地域コードで天気予報を取得
             var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`;
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
@@ -236,6 +234,19 @@
                         try {
                             var data = JSON.parse(xhr.responseText);
                             console.log('天気データ:', data);
+
+                            // 地域コードに対応する天気データがない場合、東京の天気予報を使用
+                            if (!data || !data[0].timeSeries || !data[0].timeSeries[0].areas || data[0].timeSeries[0].areas.length === 0) {
+                                console.warn(`地域コード ${regionCode} のデータが見つかりません。東京（130000）の天気予報を取得します。`);
+                                regionCode = '130000'; // 東京の地域コード
+                                apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`;
+                                // 東京のデータを再取得
+                                xhr.open('GET', apiUrl, true);
+                                xhr.send();
+                                return;  // ここで再度呼び出しを行い、処理を終了
+                            }
+
+                            // 正常に取得できた場合の処理
                             var areaInfo = data[0].timeSeries[0].areas[0];
 
                             var weatherIconsContainer = document.getElementById('weather-icons');
