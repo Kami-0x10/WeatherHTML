@@ -75,13 +75,29 @@
 
     <script>
         window.onload = function () {
-            // IP Geolocationを使用して位置情報を取得
-            getLocationFromIP();
+            // 位置情報を取得
+            getLocation();
         };
 
+        function getLocation() {
+            // ローカルストレージから保存された位置情報を取得
+            var cachedLocation = localStorage.getItem('locationData');
+            var lastUpdated = localStorage.getItem('lastUpdated');
+
+            // 24時間経過していない場合はキャッシュを使用
+            var currentTime = new Date().getTime();
+            if (cachedLocation && lastUpdated && (currentTime - lastUpdated) < 86400000) {
+                // キャッシュがあり、24時間以内ならそれを使用
+                var locationData = JSON.parse(cachedLocation);
+                displayLocation(locationData);
+            } else {
+                // 24時間経過している、またはキャッシュがない場合はAPIから取得
+                getLocationFromIP();
+            }
+        }
+
         function getLocationFromIP() {
-            // ipgeolocation.io APIを使ってIPアドレスから場所を取得
-            var apiUrl = 'https://api.ipgeolocation.io/ipgeo?apiKey=YOUR_API_KEY';  // 取得したAPIキーを設定
+            var apiUrl = 'https://ipinfo.io/json';  // IP Geolocation API
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -91,14 +107,14 @@
                             var locationData = JSON.parse(xhr.responseText);
                             console.log('IPから取得した場所:', locationData);
 
-                            var city = locationData.city;
-                            var region = locationData.state_prov;
-                            var country = locationData.country_name;
+                            // ローカルストレージに位置情報と取得時刻を保存
+                            localStorage.setItem('locationData', JSON.stringify(locationData));
+                            localStorage.setItem('lastUpdated', new Date().getTime());
 
                             // 位置情報を表示
-                            document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
+                            displayLocation(locationData);
 
-                            var regionCode = getRegionCode(region);
+                            var regionCode = getRegionCode(locationData.region);
                             if (regionCode) {
                                 getWeatherByLocation(regionCode);
                             } else {
@@ -117,7 +133,15 @@
             xhr.send();
         }
 
-        // 地域コードを取得する関数
+        function displayLocation(locationData) {
+            var city = locationData.city;
+            var region = locationData.region;
+            var country = locationData.country;
+
+            // 位置情報を表示
+            document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
+        }
+
         function getRegionCode(region) {
             var regionCodes = {
                 '北海道': '010000',
@@ -172,7 +196,6 @@
             return regionCodes[region] || null; // 地域コードが見つからない場合
         }
 
-        // 天気情報を取得して表示する関数
         function getWeatherByLocation(regionCode) {
             var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`; 
             var xhr = new XMLHttpRequest();
@@ -219,7 +242,6 @@
             xhr.send();
         }
 
-        // 天気コードに対応するアイコンクラスを取得する関数
         function getWeatherIconClass(weatherCode) {
             switch (weatherCode) {
                 case '100': return 'sunny';
@@ -229,7 +251,6 @@
             }
         }
 
-        // 日付をフォーマットする関数
         function formatDate(date) {
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
