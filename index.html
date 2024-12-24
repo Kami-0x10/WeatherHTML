@@ -79,11 +79,13 @@
                     function (position) {
                         var lat = position.coords.latitude;
                         var lon = position.coords.longitude;
+                        console.log('位置情報取得成功:', lat, lon); // 位置情報のログ
                         getWeatherByLocation(lat, lon);
                     },
                     function (error) {
+                        console.error('位置情報の取得に失敗:', error.message); // エラーメッセージをログに出力
                         alert('位置情報の取得に失敗しました: ' + error.message);
-                    }, 
+                    },
                     { timeout: 10000 } // タイムアウトを設定して、取得が遅い場合にも対応
                 );
             } else {
@@ -100,22 +102,26 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            console.log(data); // レスポンスの内容を確認するためのログ
+                            console.log('APIレスポンス:', data); // APIレスポンスの内容をログに表示
 
                             // レスポンス構造の確認
                             if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
                                 var areaInfo = data[0].timeSeries[0].areas[0];
                                 var location = areaInfo.area.name;
                                 var forecast = areaInfo.weatherCodes[0];
-                                var temp = areaInfo.temperature.max ?
-                                    "最高気温: " + areaInfo.temperature.max.celsius + "°C" :
-                                    "温度情報なし";
+
+                                // temperatureオブジェクトが存在するか確認してからアクセス
+                                var temp = '温度情報なし';
+                                if (areaInfo.temperature && areaInfo.temperature.max) {
+                                    temp = "最高気温: " + areaInfo.temperature.max.celsius + "°C";
+                                }
 
                                 document.getElementById('location').textContent = '場所: ' + location;
                                 document.getElementById('forecast').textContent = '天気: ' + forecast;
                                 document.getElementById('temp').textContent = temp;
                                 document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                             } else {
+                                console.error('無効な天気データ');
                                 alert('天気情報のレスポンスが無効です。');
                             }
                         } catch (error) {
