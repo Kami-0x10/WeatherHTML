@@ -96,22 +96,35 @@
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        var areaInfo = data[0].timeSeries[0].areas[0];
-                        var location = areaInfo.area.name;
-                        var forecast = areaInfo.weatherCodes[0];
-                        var temp = areaInfo.temperature.max ?
-                            "最高気温: " + areaInfo.temperature.max.celsius + "°C" :
-                            "温度情報なし";
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            console.log(data); // レスポンスの内容を確認するためのログ
 
-                        document.getElementById('location').textContent = '場所: ' + location;
-                        document.getElementById('forecast').textContent = '天気: ' + forecast;
-                        document.getElementById('temp').textContent = temp;
-                        document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
-                    } catch (error) {
-                        alert('天気情報の取得中にエラーが発生しました。');
+                            // レスポンス構造の確認
+                            if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
+                                var areaInfo = data[0].timeSeries[0].areas[0];
+                                var location = areaInfo.area.name;
+                                var forecast = areaInfo.weatherCodes[0];
+                                var temp = areaInfo.temperature.max ?
+                                    "最高気温: " + areaInfo.temperature.max.celsius + "°C" :
+                                    "温度情報なし";
+
+                                document.getElementById('location').textContent = '場所: ' + location;
+                                document.getElementById('forecast').textContent = '天気: ' + forecast;
+                                document.getElementById('temp').textContent = temp;
+                                document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
+                            } else {
+                                alert('天気情報のレスポンスが無効です。');
+                            }
+                        } catch (error) {
+                            console.error('天気情報の解析エラー:', error);
+                            alert('天気情報の取得中にエラーが発生しました。');
+                        }
+                    } else {
+                        console.error('天気情報の取得に失敗しました:', xhr.status, xhr.statusText);
+                        alert('天気情報の取得に失敗しました。');
                     }
                 }
             };
