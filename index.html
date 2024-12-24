@@ -25,26 +25,6 @@
             display: block;
             margin: 0 auto;
         }
-        .weather-icon.sunny {
-            background: url('https://cdn-icons-png.flaticon.com/512/869/869869.png') no-repeat center center;
-            background-size: contain;
-        }
-        .weather-icon.cloudy {
-            background: url('https://cdn-icons-png.flaticon.com/512/414/414825.png') no-repeat center center;
-            background-size: contain;
-        }
-        .weather-icon.rainy {
-            background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
-            background-size: contain;
-        }
-        .weather-icon.snowy {
-            background: url('https://cdn-icons-png.flaticon.com/512/414/414834.png') no-repeat center center;
-            background-size: contain;
-        }
-        .weather-icon.thunderstorm {
-            background: url('https://cdn-icons-png.flaticon.com/512/1146/1146869.png') no-repeat center center;
-            background-size: contain;
-        }
         .forecast-day {
             margin-top: 10px;
             font-size: 16px;
@@ -86,7 +66,7 @@
                 var region = locationData.region.split(',')[0].trim();
                 var regionCode = getRegionCode(region);
                 if (regionCode) {
-                    var closestRegionCode = getClosestRegionCode(regionCode); // 最寄りの地域コードを取得
+                    var closestRegionCode = getClosestRegionCode(regionCode);
                     var cachedWeatherData = getLocalStorageItem('weatherData');
                     if (cachedWeatherData) {
                         displayWeatherIcons(JSON.parse(cachedWeatherData));
@@ -205,7 +185,6 @@
                 "202": "曇一時雨", "203": "曇時々雨", "204": "曇一時雪", "205": "曇時々雪", "206": "曇一時雨か雪",
                 "207": "曇時々雨か雪", "208": "曇一時雨か雷雨", "209": "霧", "210": "霧後曇"
             };
-
             return weatherIcons[weatherCode] || "晴"; // デフォルトを"晴"に設定
         }
 
@@ -222,7 +201,7 @@
             weatherData.forEach(function (data) {
                 var iconDiv = document.createElement('div');
                 iconDiv.className = 'weather-icon';
-                iconDiv.innerHTML = `<img src="path/to/icons/${data.iconClass}.svg" alt="天気アイコン">`;
+                iconDiv.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="天気アイコン">`;
                 var dayDiv = document.createElement('div');
                 dayDiv.className = 'forecast-day';
                 dayDiv.innerHTML = `${data.date}<br><span>${data.iconClass}</span>`;
