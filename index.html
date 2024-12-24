@@ -231,7 +231,9 @@
                                 var date = new Date();
                                 date.setDate(date.getDate() + i);
                                 var formattedDate = formatDate(date);
-                                weatherData.push({ iconClass: iconClass, date: formattedDate });
+
+                                // weatherCode を含めて weatherData 配列に追加
+                                weatherData.push({ weatherCode: weatherCode, iconClass: iconClass, date: formattedDate });
                             }
                             setLocalStorageItem('weatherData', JSON.stringify(weatherData));
                             displayWeatherIcons(weatherData);
@@ -243,90 +245,80 @@
             };
             xhr.send();
         }
-
-        const weatherIconMap = {
-            "100": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
-            "101": "https://cdn-icons-png.flaticon.com/512/414/414825.png", // 晴れ時々曇り
-            "102": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 晴れ一時雨
-            "103": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
-            "104": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 晴れ時々曇り
-            "200": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
-            "201": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
-            "202": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 曇り時々雨
-            "210": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-            "211": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-            "212": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 強い雨
-            "213": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-            "300": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-            "301": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 小雨
-            "302": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 中雨
-            "303": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
-            "304": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
-            "305": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 局地的な雨
-            "306": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
-            "307": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
-            "400": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
-            "401": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
-            "402": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
-            "403": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
-            "404": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷を伴う雪
-            "405": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪の中の雨
-            "500": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-            "501": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-            "502": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
-            "503": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雨
-            "504": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 非常に強い雨
-            "600": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
-            "601": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
-            "602": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
-            "603": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
-            "604": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷雪
-            "700": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
-            "701": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
-            "702": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
-            "800": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
-            "801": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ時々曇り
-            "802": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
-            "803": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
-            "804": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
-        };
-
         function getWeatherIconClass(weatherCode) {
-            return weatherIconMap[weatherCode] || "https://cdn-icons-png.flaticon.com/512/869/869869.png"; // デフォルトのアイコン
+            var weatherIconMap = {
+                "100": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
+                "101": "https://cdn-icons-png.flaticon.com/512/414/414825.png", // 晴れ時々曇り
+                "102": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 晴れ一時雨
+                "103": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
+                "104": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 晴れ時々曇り
+                "200": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
+                "201": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
+                "202": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 曇り時々雨
+                "210": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+                "211": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+                "212": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 強い雨
+                "213": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+                "300": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+                "301": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 小雨
+                "302": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 中雨
+                "303": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
+                "304": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
+                "305": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 局地的な雨
+                "306": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
+                "307": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
+                "400": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
+                "401": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
+                "402": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
+                "403": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
+                "404": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷を伴う雪
+                "405": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪の中の雨
+                "500": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+                "501": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+                "502": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
+                "503": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雨
+                "504": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 非常に強い雨
+                "600": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
+                "601": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
+                "602": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
+                "603": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
+                "604": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷雪
+                "700": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
+                "701": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
+                "702": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
+                "800": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
+                "801": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ時々曇り
+                "802": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
+                "803": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
+                "804": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
+            };
+            
+            return weatherIconMap[weatherCode] || "";
         }
 
         function formatDate(date) {
-            var day = date.getDate();
-            var month = date.getMonth() + 1;
             var year = date.getFullYear();
-            return `${year}年${month}月${day}日`;
+            var month = ("0" + (date.getMonth() + 1)).slice(-2);
+            var day = ("0" + date.getDate()).slice(-2);
+            return year + "/" + month + "/" + day;
         }
 
         function displayWeatherIcons(weatherData) {
-            var weatherIconsContainer = document.getElementById('weather-icons');
-            weatherIconsContainer.innerHTML = '';  // 既存の内容をクリア
+            var container = document.getElementById('weather-icons');
+            container.innerHTML = '';
 
             weatherData.forEach(function (data) {
-                var iconDiv = document.createElement('div');
-                iconDiv.className = 'weather-icon';
-        
-                // 天気コードに基づいてアイコンのURLを取得
-                var iconUrl = weatherIconMap[data.weatherCode];  // 天気コードに対応するURLを取得
-        
-                // 画像を設定
-                iconDiv.innerHTML = `<img src="${iconUrl}" alt="天気アイコン">`;
+                var icon = document.createElement('div');
+                icon.classList.add('weather-icon');
+                icon.innerHTML = `<img src="${data.iconClass}" alt="Weather Icon">`;
+                container.appendChild(icon);
 
-                // 日付を表示する部分を作成
-                var dayDiv = document.createElement('div');
-                dayDiv.className = 'forecast-day';
-                dayDiv.innerHTML = `<span>${data.date}</span>`;
-
-                // アイコンと日付を追加
-                weatherIconsContainer.appendChild(iconDiv);
-                weatherIconsContainer.appendChild(dayDiv);
+                var forecastDay = document.createElement('div');
+                forecastDay.classList.add('forecast-day');
+                forecastDay.innerHTML = `${data.date}<span>天気</span>`;
+                container.appendChild(forecastDay);
             });
         }
-
 
         function getLocalStorageItem(key) {
             return localStorage.getItem(key);
@@ -338,3 +330,4 @@
     </script>
 </body>
 </html>
+        
