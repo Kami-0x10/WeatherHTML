@@ -104,8 +104,8 @@
                             // 位置情報を表示
                             displayLocation(locationData);
 
-                            var region = locationData.region; // 例: "Saitama"
-                            var regionCode = getRegionCode(region);
+                            var region = locationData.region; // 例: "Saitama, JP"
+                            var regionCode = getRegionCode(region.split(',')[0].trim()); // カンマで分割し最初の部分を取得
                             if (regionCode) {
                                 getWeatherByLocation(regionCode);
                             } else {
@@ -128,7 +128,7 @@
 
         function displayLocation(locationData) {
             var city = locationData.city;
-            var region = locationData.region;
+            var region = locationData.region.split(',')[0].trim(); // カンマを除いて都道府県名を取得
             var country = locationData.country;
 
             // 位置情報を表示
@@ -167,11 +167,11 @@
                 '410000': '400000', '420000': '420000', '430000': '430000', '440000': '450000', '450000': '450000',
                 '460000': '460000', '470000': '470000'
             };
+
             return regionMapping[regionCode] || regionCode;
         }
 
         function getWeatherByLocation(regionCode) {
-            // 最初に指定された地域コードで天気予報を取得
             var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`;
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
