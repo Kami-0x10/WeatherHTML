@@ -304,18 +304,29 @@
 
         function displayWeatherIcons(weatherData) {
             var weatherIconsContainer = document.getElementById('weather-icons');
-            weatherIconsContainer.innerHTML = '';
+            weatherIconsContainer.innerHTML = '';  // 既存の内容をクリア
+
             weatherData.forEach(function (data) {
                 var iconDiv = document.createElement('div');
                 iconDiv.className = 'weather-icon';
-                iconDiv.innerHTML = `<img src="${weatherIconMap}" alt="天気アイコン">`;
+        
+                // 天気コードに基づいてアイコンのURLを取得
+                var iconUrl = weatherIconMap[data.weatherCode];  // 天気コードに対応するURLを取得
+        
+                // 画像を設定
+                iconDiv.innerHTML = `<img src="${iconUrl}" alt="天気アイコン">`;
+
+                // 日付を表示する部分を作成
                 var dayDiv = document.createElement('div');
                 dayDiv.className = 'forecast-day';
                 dayDiv.innerHTML = `<span>${data.date}</span>`;
+
+                // アイコンと日付を追加
                 weatherIconsContainer.appendChild(iconDiv);
                 weatherIconsContainer.appendChild(dayDiv);
             });
         }
+
 
         function getLocalStorageItem(key) {
             return localStorage.getItem(key);
