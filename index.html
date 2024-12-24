@@ -142,6 +142,7 @@
             document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
         }
 
+        // 地域コードを取得する関数
         function getRegionCode(region) {
             var regionCodes = {
                 '北海道': '010000',
@@ -193,7 +194,14 @@
                 '沖縄県': '470000'
             };
 
-            return regionCodes[region] || null; // 地域コードが見つからない場合
+            // 近似地域の取得（部分一致）
+            for (var key in regionCodes) {
+                if (region.indexOf(key) !== -1) {
+                    return regionCodes[key];
+                }
+            }
+
+            return null; // 地域コードが見つからない場合
         }
 
         function getWeatherByLocation(regionCode) {
