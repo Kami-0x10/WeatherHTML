@@ -68,38 +68,19 @@
     <div class="weather">
         <p id="location">場所: 取得中...</p>
         <p id="temp">温度: 取得中...</p>
+        <p id="wind">風速: 取得中...</p>
         <p id="forecast">天気: 取得中...</p>
         <div id="weather-icon" class="weather-icon"></div>
     </div>
 
     <script>
         window.onload = function () {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        var lat = position.coords.latitude;
-                        var lon = position.coords.longitude;
-                        console.log('位置情報取得成功:', lat, lon); // 位置情報のログ
-                        getWeatherByLocation(lat, lon);
-                    },
-                    function (error) {
-                        console.error('位置情報の取得に失敗:', error.message); // エラーメッセージをログに出力
-                        alert('位置情報の取得に失敗しました: ' + error.message);
-                        // IPアドレスによる位置情報取得を試みる
-                        getLocationByIP();
-                    },
-                    { timeout: 10000 } // タイムアウトを設定して、取得が遅い場合にも対応
-                );
-            } else {
-                alert('このブラウザは位置情報をサポートしていません。');
-                // IPアドレスによる位置情報取得を試みる
-                getLocationByIP();
-            }
+            getLocationByIP();  // IPで場所を取得する関数を呼び出す
         };
 
-        // IPアドレスを使って位置情報を取得
+        // IPから場所を取得する関数
         function getLocationByIP() {
-            var apiUrl = 'https://ipinfo.io/json?token=YOUR_API_TOKEN'; // ipinfo.ioのAPIを使用（YOUR_API_TOKENを自分のトークンに置き換えてください）
+            var apiUrl = 'https://ipinfo.io/json?token=YOUR_TOKEN'; // ipinfo.io API（無料トークンが必要）
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -107,26 +88,26 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            console.log('位置情報 (IPベース):', data); // 取得した位置情報のログ
-                            var location = data.city;
-                            var loc = data.loc.split(',');
-                            var lat = loc[0];
-                            var lon = loc[1];
-                            getWeatherByLocation(lat, lon);
+                            var location = data.city + ", " + data.region + ", " + data.country;
+                            document.getElementById('location').textContent = '場所: ' + location;
+                            console.log('IPから取得した場所:', location);
+                            
+                            // 緯度経度を利用して天気情報を取得
+                            var coords = data.loc.split(',');
+                            getWeatherByLocation(coords[0], coords[1]);
                         } catch (error) {
-                            console.error('位置情報取得エラー:', error);
-                            alert('位置情報の取得に失敗しました。');
+                            console.error('場所の取得エラー:', error);
+                            alert('場所の取得中にエラーが発生しました。');
                         }
                     } else {
-                        console.error('位置情報の取得に失敗:', xhr.status, xhr.statusText);
-                        alert('位置情報の取得に失敗しました。');
+                        console.error('IP情報の取得に失敗しました:', xhr.status, xhr.statusText);
+                        alert('IP情報の取得に失敗しました。');
                     }
                 }
             };
             xhr.send();
         }
 
-        // 位置情報をもとに天気情報を取得
         function getWeatherByLocation(lat, lon) {
             var apiUrl = 'https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json'; // CORSプロキシを通す
             var xhr = new XMLHttpRequest();
@@ -136,20 +117,26 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            console.log('APIレスポンス:', data); // APIレスポンスの内容をログに表示
+                            console.log('APIレスポンス:', data);
 
                             if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
                                 var areaInfo = data[0].timeSeries[0].areas[0];
                                 var location = areaInfo.area.name;
                                 var forecast = areaInfo.weatherCodes[0];
+
                                 var temp = '温度情報なし';
                                 if (areaInfo.temperature && areaInfo.temperature.max) {
                                     temp = "最高気温: " + areaInfo.temperature.max.celsius + "°C";
                                 }
 
-                                document.getElementById('location').textContent = '場所: ' + location;
+                                var windSpeed = '風速情報なし';
+                                if (areaInfo.wind) {
+                                    windSpeed = "風速: " + areaInfo.wind.speed + "m/s";
+                                }
+
                                 document.getElementById('forecast').textContent = '天気: ' + forecast;
                                 document.getElementById('temp').textContent = temp;
+                                document.getElementById('wind').textContent = windSpeed;
                                 document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                             } else {
                                 console.error('無効な天気データ');
