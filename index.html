@@ -308,7 +308,7 @@
             weatherData.forEach(function (data) {
                 var iconDiv = document.createElement('div');
                 iconDiv.className = 'weather-icon';
-                iconDiv.innerHTML = `<img src="${data.iconClass}" alt="天気アイコン">`;
+                iconDiv.innerHTML = `<img src="${weatherIconMap}" alt="天気アイコン">`;
                 var dayDiv = document.createElement('div');
                 dayDiv.className = 'forecast-day';
                 dayDiv.innerHTML = `<span>${data.date}</span>`;
