@@ -83,7 +83,8 @@
                     },
                     function (error) {
                         alert('位置情報の取得に失敗しました: ' + error.message);
-                    }
+                    }, 
+                    { timeout: 10000 } // タイムアウトを設定して、取得が遅い場合にも対応
                 );
             } else {
                 alert('このブラウザは位置情報をサポートしていません。');
@@ -91,14 +92,13 @@
         };
 
         function getWeatherByLocation(lat, lon) {
-            var apiUrl = 'https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json';
+            var apiUrl = 'https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json'; // CORSプロキシを通す
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     try {
                         var data = JSON.parse(xhr.responseText);
-
                         var areaInfo = data[0].timeSeries[0].areas[0];
                         var location = areaInfo.area.name;
                         var forecast = areaInfo.weatherCodes[0];
