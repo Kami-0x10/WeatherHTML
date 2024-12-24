@@ -83,7 +83,7 @@
             // IP Geolocation APIを使ってIPアドレスから場所を取得
             var apiUrl = 'https://ip-api.com/json';  // 無料のIP Geolocation API
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', apiUrl, true);
+            xhr.open('POST', apiUrl, true);
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
