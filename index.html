@@ -46,6 +46,10 @@
         .forecast-day span {
             display: block;
         }
+        .input-form {
+            margin-top: 20px;
+            text-align: center;
+        }
         /* Adjustments for smaller screens */
         @media only screen and (max-width: 768px) {
             body {
@@ -64,11 +68,29 @@
         <div id="weather-icons"></div> <!-- 一週間の天気アイコンと日付を表示 -->
     </div>
     
+    <!-- ユーザー入力フォーム -->
+    <div id="user-form" class="input-form" style="display: none;">
+        <h2>位置情報が正確ではありませんか？手動で入力してください。</h2>
+        <label for="city">都市名:</label>
+        <input type="text" id="city" placeholder="都市名を入力">
+        <button onclick="searchByCity()">検索</button>
+    </div>
+
     <script>
         window.onload = function () {
-            // 位置情報を取得
-            getLocation();
+            // iOS 6 Safariの場合、フォームを表示
+            if (isIOS6()) {
+                document.getElementById('user-form').style.display = 'block';
+            } else {
+                // 位置情報を取得
+                getLocation();
+            }
         };
+
+        function isIOS6() {
+            var userAgent = navigator.userAgent.toLowerCase();
+            return userAgent.indexOf('iphone') !== -1 && userAgent.indexOf('os 6') !== -1;
+        }
 
         function getLocation() {
             // ローカルストレージから保存された位置情報を取得
@@ -187,6 +209,7 @@
                                 var weatherIconsContainer = document.getElementById('weather-icons');
                                 weatherIconsContainer.innerHTML = '';
                                 
+
                                 for (var i = 0; i < 7; i++) {
                                     var weatherCode = areaInfo.weatherCodes[i];
                                     var iconClass = getWeatherIconClass(weatherCode);
@@ -250,6 +273,13 @@
                 console.error('ローカルストレージの読み込みエラー:', e);
                 return null;
             }
+        }
+
+        // 手動検索機能
+        function searchByCity() {
+            var city = document.getElementById('city').value;
+            alert('「' + city + '」の天気情報を検索します。');
+            // 必要に応じて都市名に基づく天気情報を取得する処理を追加
         }
     </script>
 </body>
