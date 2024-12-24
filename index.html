@@ -46,7 +46,6 @@
         .forecast-day span {
             display: block;
         }
-        /* Adjustments for smaller screens */
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -61,12 +60,11 @@
     <h1>天気情報</h1>
     <div class="weather">
         <p id="location">場所: 取得中...</p>
-        <div id="weather-icons"></div> <!-- 一週間の天気アイコンと日付を表示 -->
+        <div id="weather-icons"></div>
     </div>
     
     <script>
         window.onload = function () {
-            // 位置情報を取得
             getLocation();
         };
 
@@ -78,17 +76,16 @@
             // 24時間経過していない場合はキャッシュを使用
             var currentTime = new Date().getTime();
             if (cachedLocation && lastUpdated && (currentTime - lastUpdated) < 86400000) {
-                // キャッシュがあり、24時間以内ならそれを使用
                 var locationData = JSON.parse(cachedLocation);
                 displayLocation(locationData);
             } else {
-                // 24時間経過している、またはキャッシュがない場合はAPIから取得
+                // キャッシュが無い場合、IPから位置情報を取得
                 getLocationFromIP();
             }
         }
 
         function getLocationFromIP() {
-            var apiUrl = 'https://ipinfo.io/json';  // IP Geolocation API
+            var apiUrl = 'https://cors-0x10.online/https://ipinfo.io/json';  // IP Geolocation API
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -98,28 +95,24 @@
                             var locationData = JSON.parse(xhr.responseText);
                             console.log('IPから取得した場所:', locationData);
 
-                            // ローカルストレージに位置情報と取得時刻を保存
                             setLocalStorageItem('locationData', JSON.stringify(locationData));
                             setLocalStorageItem('lastUpdated', new Date().getTime());
 
-                            // 位置情報を表示
                             displayLocation(locationData);
 
-                            var region = locationData.region; // 例: "Saitama, JP"
-                            var regionCode = getRegionCode(region.split(',')[0].trim()); // カンマで分割し最初の部分を取得
+                            var region = locationData.region;
+                            var regionCode = getRegionCode(region.split(',')[0].trim()); 
                             if (regionCode) {
                                 getWeatherByLocation(regionCode);
                             } else {
-                                alert('地域コードが見つかりませんでした。最寄りの地域を取得します。');
-                                regionCode = getClosestRegionCode(region); // 最寄りの地域コード
-                                getWeatherByLocation(regionCode);
+                                alert('地域コードが見つかりませんでした。');
                             }
                         } catch (error) {
                             console.error('位置情報取得エラー:', error);
                             alert('位置情報の取得中にエラーが発生しました。');
                         }
                     } else {
-                        console.error('IP Geolocation APIエラー:', xhr.status, xhr.statusText);
+                        console.error('位置情報取得エラー:', xhr.status);
                         alert('位置情報の取得に失敗しました。');
                     }
                 }
@@ -129,51 +122,23 @@
 
         function displayLocation(locationData) {
             var city = locationData.city;
-            var region = locationData.region.split(',')[0].trim(); // カンマを除いて都道府県名を取得
+            var region = locationData.region.split(',')[0].trim();
             var country = locationData.country;
 
-            // 位置情報を表示
             document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
         }
 
-        // 地域コードを取得する関数
         function getRegionCode(region) {
             var regionCodes = {
-                'Hokkaido': '010000', 'Aomori': '020000', 'Iwate': '030000', 'Miyagi': '040000', 'Akita': '050000',
-                'Yamagata': '060000', 'Fukushima': '070000', 'Ibaraki': '080000', 'Tochigi': '090000', 'Gunma': '100000',
-                'Saitama': '110000', 'Chiba': '120000', 'Tokyo': '130000', 'Kanagawa': '140000', 'Niigata': '150000',
-                'Toyama': '160000', 'Ishikawa': '170000', 'Fukui': '180000', 'Yamanashi': '190000', 'Nagano': '200000',
-                'Gifu': '210000', 'Shizuoka': '220000', 'Aichi': '230000', 'Mie': '240000', 'Shiga': '250000',
-                'Kyoto': '260000', 'Osaka': '270000', 'Hyogo': '280000', 'Nara': '290000', 'Wakayama': '300000',
-                'Tottori': '310000', 'Shimane': '320000', 'Okayama': '330000', 'Hiroshima': '340000', 'Yamaguchi': '350000',
-                'Tokushima': '360000', 'Kagawa': '370000', 'Ehime': '380000', 'Kochi': '390000', 'Fukuoka': '400000',
-                'Saga': '410000', 'Nagasaki': '420000', 'Kumamoto': '430000', 'Oita': '440000', 'Miyazaki': '450000',
-                'Kagoshima': '460000', 'Okinawa': '470000'
+                'Tokyo': '130000',
+                'Osaka': '270000',
+                // 他の地域コードをここに追加
             };
-
-            return regionCodes[region] || null; // 地域コードが見つからない場合はnullを返す
-        }
-
-        // 最寄りの地域コードを取得するためのロジック
-        function getClosestRegionCode(regionCode) {
-            var regionMapping = {
-                '010000': '010000', '020000': '020000', '030000': '030000', '040000': '040000', '050000': '050000',
-                '060000': '060000', '070000': '070000', '080000': '080000', '090000': '090000', '100000': '100000',
-                '110000': '130000', '120000': '130000', '130000': '130000', '140000': '130000', '150000': '150000',
-                '160000': '160000', '170000': '170000', '180000': '130000', '190000': '130000', '200000': '200000',
-                '210000': '210000', '220000': '220000', '230000': '230000', '240000': '230000', '250000': '250000',
-                '260000': '250000', '270000': '270000', '280000': '270000', '290000': '270000', '300000': '270000',
-                '310000': '330000', '320000': '330000', '330000': '340000', '340000': '350000', '350000': '350000',
-                '360000': '370000', '370000': '380000', '380000': '390000', '390000': '390000', '400000': '400000',
-                '410000': '400000', '420000': '420000', '430000': '430000', '440000': '450000', '450000': '450000',
-                '460000': '460000', '470000': '470000'
-            };
-
-            return regionMapping[regionCode] || regionCode;
+            return regionCodes[region] || null;
         }
 
         function getWeatherByLocation(regionCode) {
-            var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`;
+            var apiUrl = `https://cors-0x10.online/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`;
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -211,7 +176,7 @@
                             alert('天気情報の取得中にエラーが発生しました。');
                         }
                     } else {
-                        console.error('天気情報の取得に失敗:', xhr.status);
+                        console.error('天気情報取得エラー:', xhr.status);
                         alert('天気情報の取得に失敗しました。');
                     }
                 }
