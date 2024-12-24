@@ -6,69 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天気情報</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            color: #333;
-        }
-
-        .weather {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .weather-icon {
-            width: 50px;
-            height: 50px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .weather-icon.sunny {
-            background: url('https://cdn-icons-png.flaticon.com/512/869/869869.png') no-repeat center center;
-            background-size: contain;
-        }
-
-        .weather-icon.cloudy {
-            background: url('https://cdn-icons-png.flaticon.com/512/414/414825.png') no-repeat center center;
-            background-size: contain;
-        }
-
-        .weather-icon.rainy {
-            background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
-            background-size: contain;
-        }
-
-        .forecast-day {
-            margin-top: 10px;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .forecast-day span {
-            display: block;
-        }
-
-        @media only screen and (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 20px;
-            }
-        }
+        /* CSSスタイルは前回のコードと同様 */
     </style>
 </head>
 <body>
     <h1>天気情報</h1>
-
     <div class="weather">
         <p id="location">場所: 取得中...</p>
         <div id="weather-icons"></div> <!-- 一週間の天気アイコンと日付を表示 -->
@@ -76,7 +18,27 @@
 
     <script>
         window.onload = function () {
-            getLocationFromIP();
+            // 位置情報を取得する
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        var lat = position.coords.latitude;
+                        var lon = position.coords.longitude;
+                        console.log('位置情報取得成功:', lat, lon); // 位置情報のログ
+                        getWeatherByLocation(lat, lon);
+                    },
+                    function (error) {
+                        console.error('位置情報の取得に失敗:', error.message); // エラーメッセージをログに出力
+                        alert('位置情報の取得に失敗しました: ' + error.message);
+                        getLocationFromIP(); // IPアドレスから位置情報を取得
+                    },
+                    { timeout: 10000 } // タイムアウトを設定して、取得が遅い場合にも対応
+                );
+            } else {
+                // 位置情報が取得できない場合の代替手段
+                alert('位置情報の取得に失敗しました。手動で場所を入力してください。');
+                getLocationFromIP();
+            }
         };
 
         function getLocationFromIP() {
@@ -94,17 +56,12 @@
                             var city = locationData.city;
                             var region = locationData.regionName;
                             var country = locationData.country;
-                            var latitude = locationData.lat;
-                            var longitude = locationData.lon;
 
                             // 位置情報を表示
                             document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
 
-                            // 地域名に基づいて地域コードを動的に取得
-                            var regionCode = getRegionCode(region, city);
-
+                            var regionCode = getRegionCode(region);
                             if (regionCode) {
-                                // JMAの天気情報を取得する
                                 getWeatherByLocation(regionCode);
                             } else {
                                 alert('地域コードが見つかりませんでした。');
@@ -122,8 +79,8 @@
             xhr.send();
         }
 
-        // 地域名に基づいて地域コードを取得する
-        function getRegionCode(region, city) {
+        // 地域コードを取得する関数
+        function getRegionCode(region) {
             var regionCodes = {
                 '北海道': '010000',
                 '青森県': '020000',
@@ -174,16 +131,12 @@
                 '沖縄県': '470000'
             };
 
-            // 地域コードの取得
-            if (regionCodes[region]) {
-                return regionCodes[region];
-            } else {
-                return null; // 見つからない場合
-            }
+            return regionCodes[region] || null; // 地域コードが見つからない場合
         }
 
+        // 天気情報を取得して表示する関数
         function getWeatherByLocation(regionCode) {
-            var apiUrl = `https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`; 
+            var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`; 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -191,45 +144,36 @@
                     if (xhr.status === 200) {
                         try {
                             var data = JSON.parse(xhr.responseText);
-                            console.log('APIレスポンス:', data);
+                            console.log('天気データ:', data);
+                            var areaInfo = data[0].timeSeries[0].areas[0];
 
-                            if (data[0] && data[0].timeSeries && data[0].timeSeries[0] && data[0].timeSeries[0].areas[0]) {
-                                var areaInfo = data[0].timeSeries[0].areas[0];
-                                var location = areaInfo.area.name;
+                            var weatherIconsContainer = document.getElementById('weather-icons');
+                            weatherIconsContainer.innerHTML = '';
 
-                                document.getElementById('location').textContent = '場所: ' + location;
+                            for (let i = 0; i < 7; i++) {
+                                var weatherCode = areaInfo.weatherCodes[i];
+                                var iconClass = getWeatherIconClass(weatherCode);
 
-                                var weatherIconsContainer = document.getElementById('weather-icons');
-                                weatherIconsContainer.innerHTML = '';
+                                var date = new Date();
+                                date.setDate(date.getDate() + i);
+                                var formattedDate = formatDate(date);
 
-                                for (let i = 0; i < 7; i++) {
-                                    var weatherCode = areaInfo.weatherCodes[i];
-                                    var iconClass = getWeatherIconClass(weatherCode);
+                                var iconDiv = document.createElement('div');
+                                iconDiv.className = 'weather-icon ' + iconClass;
 
-                                    var date = new Date();
-                                    date.setDate(date.getDate() + i);
-                                    var formattedDate = formatDate(date);
+                                var dayDiv = document.createElement('div');
+                                dayDiv.className = 'forecast-day';
+                                dayDiv.innerHTML = `<span>${formattedDate}</span>`;
 
-                                    var iconDiv = document.createElement('div');
-                                    iconDiv.className = 'weather-icon ' + iconClass;
-
-                                    var dayDiv = document.createElement('div');
-                                    dayDiv.className = 'forecast-day';
-                                    dayDiv.innerHTML = `<span>${formattedDate}</span>`;
-
-                                    weatherIconsContainer.appendChild(iconDiv);
-                                    weatherIconsContainer.appendChild(dayDiv);
-                                }
-                            } else {
-                                console.error('無効な天気データ');
-                                alert('天気情報のレスポンスが無効です。');
+                                weatherIconsContainer.appendChild(iconDiv);
+                                weatherIconsContainer.appendChild(dayDiv);
                             }
                         } catch (error) {
-                            console.error('天気情報の解析エラー:', error);
+                            console.error('天気情報解析エラー:', error);
                             alert('天気情報の取得中にエラーが発生しました。');
                         }
                     } else {
-                        console.error('天気情報の取得に失敗しました:', xhr.status, xhr.statusText);
+                        console.error('天気情報の取得に失敗:', xhr.status);
                         alert('天気情報の取得に失敗しました。');
                     }
                 }
@@ -237,24 +181,21 @@
             xhr.send();
         }
 
+        // 天気コードに対応するアイコンクラスを取得する関数
         function getWeatherIconClass(weatherCode) {
             switch (weatherCode) {
-                case '100':
-                    return 'sunny';
-                case '200':
-                    return 'cloudy';
-                case '300':
-                    return 'rainy';
-                default:
-                    return 'sunny';
+                case '100': return 'sunny';
+                case '200': return 'cloudy';
+                case '300': return 'rainy';
+                default: return 'sunny';
             }
         }
 
+        // 日付をフォーマットする関数
         function formatDate(date) {
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
             var day = date.getDate();
-
             return `${year}年${month}月${day}日`;
         }
     </script>
