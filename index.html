@@ -81,8 +81,8 @@
 
         function getLocation() {
             // ローカルストレージから保存された位置情報を取得
-            var cachedLocation = localStorage.getItem('locationData');
-            var lastUpdated = localStorage.getItem('lastUpdated');
+            var cachedLocation = getLocalStorageItem('locationData');
+            var lastUpdated = getLocalStorageItem('lastUpdated');
 
             // 24時間経過していない場合はキャッシュを使用
             var currentTime = new Date().getTime();
@@ -108,8 +108,8 @@
                             console.log('IPから取得した場所:', locationData);
 
                             // ローカルストレージに位置情報と取得時刻を保存
-                            localStorage.setItem('locationData', JSON.stringify(locationData));
-                            localStorage.setItem('lastUpdated', new Date().getTime());
+                            setLocalStorageItem('locationData', JSON.stringify(locationData));
+                            setLocalStorageItem('lastUpdated', new Date().getTime());
 
                             // 位置情報を表示
                             displayLocation(locationData);
@@ -211,7 +211,7 @@
                             var weatherIconsContainer = document.getElementById('weather-icons');
                             weatherIconsContainer.innerHTML = '';
 
-                            for (let i = 0; i < 7; i++) {
+                            for (var i = 0; i < 7; i++) {
                                 var weatherCode = areaInfo.weatherCodes[i];
                                 var iconClass = getWeatherIconClass(weatherCode);
 
@@ -224,7 +224,7 @@
 
                                 var dayDiv = document.createElement('div');
                                 dayDiv.className = 'forecast-day';
-                                dayDiv.innerHTML = `<span>${formattedDate}</span>`;
+                                dayDiv.innerHTML = '<span>' + formattedDate + '</span>';
 
                                 weatherIconsContainer.appendChild(iconDiv);
                                 weatherIconsContainer.appendChild(dayDiv);
@@ -255,7 +255,24 @@
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
             var day = date.getDate();
-            return `${year}年${month}月${day}日`;
+            return year + '年' + month + '月' + day + '日';
+        }
+
+        function setLocalStorageItem(key, value) {
+            try {
+                window.localStorage.setItem(key, value);
+            } catch (e) {
+                console.error('ローカルストレージのエラー:', e);
+            }
+        }
+
+        function getLocalStorageItem(key) {
+            try {
+                return window.localStorage.getItem(key);
+            } catch (e) {
+                console.error('ローカルストレージの読み込みエラー:', e);
+                return null;
+            }
         }
     </script>
 </body>
