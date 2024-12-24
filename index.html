@@ -75,29 +75,24 @@
 
     <script>
         window.onload = function () {
-            // 位置情報を取得
             getLocation();
         };
 
         function getLocation() {
-            // ローカルストレージから保存された位置情報を取得
             var cachedLocation = getLocalStorageItem('locationData');
             var lastUpdated = getLocalStorageItem('lastUpdated');
 
-            // 24時間経過していない場合はキャッシュを使用
             var currentTime = new Date().getTime();
             if (cachedLocation && lastUpdated && (currentTime - lastUpdated) < 86400000) {
-                // キャッシュがあり、24時間以内ならそれを使用
                 var locationData = JSON.parse(cachedLocation);
                 displayLocation(locationData);
             } else {
-                // 24時間経過している、またはキャッシュがない場合はAPIから取得
                 getLocationFromIP();
             }
         }
 
         function getLocationFromIP() {
-            var apiUrl = 'https://ipinfo.io/json';  // IP Geolocation API
+            var apiUrl = 'https://ipinfo.io/json'; 
             var xhr = new XMLHttpRequest();
             xhr.open('GET', apiUrl, true);
             xhr.onreadystatechange = function () {
@@ -107,11 +102,9 @@
                             var locationData = JSON.parse(xhr.responseText);
                             console.log('IPから取得した場所:', locationData);
 
-                            // ローカルストレージに位置情報と取得時刻を保存
                             setLocalStorageItem('locationData', JSON.stringify(locationData));
                             setLocalStorageItem('lastUpdated', new Date().getTime());
 
-                            // 位置情報を表示
                             displayLocation(locationData);
 
                             var regionCode = getRegionCode(locationData.region);
@@ -125,7 +118,7 @@
                             alert('位置情報の取得中にエラーが発生しました。');
                         }
                     } else {
-                        console.error('IP Geolocation APIエラー:', xhr.status, xhr.statusText);
+                        console.error('位置情報取得エラー:', xhr.status);
                         alert('位置情報の取得に失敗しました。');
                     }
                 }
@@ -137,71 +130,26 @@
             var city = locationData.city;
             var region = locationData.region;
             var country = locationData.country;
-
-            // 位置情報を表示
             document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
         }
 
-        // 地域コードを取得する関数
+        // ローマ字地域名と地域コードを対応付けたマップ
         function getRegionCode(region) {
             var regionCodes = {
-                '北海道': '010000',
-                '青森県': '020000',
-                '岩手県': '030000',
-                '宮城県': '040000',
-                '秋田県': '050000',
-                '山形県': '060000',
-                '福島県': '070000',
-                '茨城県': '080000',
-                '栃木県': '090000',
-                '群馬県': '100000',
-                '埼玉県': '110000',
-                '千葉県': '120000',
-                '東京都': '130000',
-                '神奈川県': '140000',
-                '新潟県': '150000',
-                '富山県': '160000',
-                '石川県': '170000',
-                '福井県': '180000',
-                '山梨県': '190000',
-                '長野県': '200000',
-                '岐阜県': '210000',
-                '静岡県': '220000',
-                '愛知県': '230000',
-                '三重県': '240000',
-                '滋賀県': '250000',
-                '京都府': '260000',
-                '大阪府': '270000',
-                '兵庫県': '280000',
-                '奈良県': '290000',
-                '和歌山県': '300000',
-                '鳥取県': '310000',
-                '島根県': '320000',
-                '岡山県': '330000',
-                '広島県': '340000',
-                '山口県': '350000',
-                '徳島県': '360000',
-                '香川県': '370000',
-                '愛媛県': '380000',
-                '高知県': '390000',
-                '福岡県': '400000',
-                '佐賀県': '410000',
-                '長崎県': '420000',
-                '熊本県': '430000',
-                '大分県': '440000',
-                '宮崎県': '450000',
-                '鹿児島県': '460000',
-                '沖縄県': '470000'
+                'Hokkaido': '010000', 'Aomori': '020000', 'Iwate': '030000', 'Miyagi': '040000', 'Akita': '050000',
+                'Yamagata': '060000', 'Fukushima': '070000', 'Ibaraki': '080000', 'Tochigi': '090000', 'Gunma': '100000',
+                'Saitama': '110000', 'Chiba': '120000', 'Tokyo': '130000', 'Kanagawa': '140000', 'Niigata': '150000',
+                'Toyama': '160000', 'Ishikawa': '170000', 'Fukui': '180000', 'Yamanashi': '190000', 'Nagano': '200000',
+                'Gifu': '210000', 'Shizuoka': '220000', 'Aichi': '230000', 'Mie': '240000', 'Shiga': '250000',
+                'Kyoto': '260000', 'Osaka': '270000', 'Hyogo': '280000', 'Nara': '290000', 'Wakayama': '300000',
+                'Tottori': '310000', 'Shimane': '320000', 'Okayama': '330000', 'Hiroshima': '340000', 'Yamaguchi': '350000',
+                'Tokushima': '360000', 'Kagawa': '370000', 'Ehime': '380000', 'Kochi': '390000', 'Fukuoka': '400000',
+                'Saga': '410000', 'Nagasaki': '420000', 'Kumamoto': '430000', 'Oita': '440000', 'Miyazaki': '450000',
+                'Kagoshima': '460000', 'Okinawa': '470000'
             };
 
-            // 近似地域の取得（部分一致）
-            for (var key in regionCodes) {
-                if (region.indexOf(key) !== -1) {
-                    return regionCodes[key];
-                }
-            }
-
-            return null; // 地域コードが見つからない場合
+            // ローマ字地域名に対応する地域コードを取得
+            return regionCodes[region] || null;
         }
 
         function getWeatherByLocation(regionCode) {
