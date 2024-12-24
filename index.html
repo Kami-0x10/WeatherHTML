@@ -174,19 +174,55 @@
             xhr.send();
         }
 
+        const weatherIconMap = {
+            "100": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
+            "101": "https://cdn-icons-png.flaticon.com/512/414/414825.png", // 晴れ時々曇り
+            "102": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 晴れ一時雨
+            "103": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
+            "104": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 晴れ時々曇り
+            "200": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
+            "201": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
+            "202": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 曇り時々雨
+            "210": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+            "211": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+            "212": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 強い雨
+            "213": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+            "300": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+            "301": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 小雨
+            "302": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 中雨
+            "303": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
+            "304": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
+            "305": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 局地的な雨
+            "306": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
+            "307": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
+            "400": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
+            "401": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
+            "402": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
+            "403": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
+            "404": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷を伴う雪
+            "405": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪の中の雨
+            "500": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+            "501": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
+            "502": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
+            "503": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雨
+            "504": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 非常に強い雨
+            "600": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
+            "601": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
+            "602": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
+            "603": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
+            "604": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷雪
+            "700": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
+            "701": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
+            "702": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
+            "800": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
+            "801": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ時々曇り
+            "802": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
+            "803": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
+            "804": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
+        };
+
         function getWeatherIconClass(weatherCode) {
-            var weatherIcons = {
-                "100": "晴", "101": "晴時々曇", "102": "晴一時雨", "103": "晴時々雨", "104": "晴一時雪", "105": "晴時々雪",
-                "106": "晴一時雨か雪", "107": "晴時々雨か雪", "108": "晴一時雨か雷雨", "110": "晴後時々曇", "111": "晴後曇",
-                "112": "晴後一時雨", "113": "晴後時々雨", "114": "晴後雨", "115": "晴後一時雪", "116": "晴後時々雪", "117": "晴後雪",
-                "118": "晴後雨か雪", "119": "晴後雨か雷雨", "120": "晴朝夕一時雨", "121": "晴朝の内一時雨", "122": "晴夕方一時雨",
-                "123": "晴山沿い雷雨", "124": "晴山沿い雪", "125": "晴午後は雷雨", "126": "晴昼頃から雨", "127": "晴夕方から雨",
-                "128": "晴夜は雨", "130": "朝の内霧後晴", "131": "晴明け方霧", "132": "晴朝夕曇", "140": "晴時々雨で雷を伴う",
-                "160": "晴一時雪か雨", "170": "晴時々雪か雨", "181": "晴後雪か雨", "200": "曇", "201": "曇時々晴",
-                "202": "曇一時雨", "203": "曇時々雨", "204": "曇一時雪", "205": "曇時々雪", "206": "曇一時雨か雪",
-                "207": "曇時々雨か雪", "208": "曇一時雨か雷雨", "209": "霧", "210": "霧後曇"
-            };
-            return weatherIcons[weatherCode] || "晴"; // デフォルトを"晴"に設定
+            return weatherIconMap[weatherCode] || "https://cdn-icons-png.flaticon.com/512/869/869869.png"; // デフォルトのアイコン
         }
 
         function formatDate(date) {
@@ -202,21 +238,21 @@
             weatherData.forEach(function (data) {
                 var iconDiv = document.createElement('div');
                 iconDiv.className = 'weather-icon';
-                iconDiv.innerHTML = `<img src="https://cdn-icons-png.flaticon.com/512/869/869869.png" alt="天気アイコン">`;
+                iconDiv.innerHTML = `<img src="${data.iconClass}" alt="天気アイコン">`;
                 var dayDiv = document.createElement('div');
                 dayDiv.className = 'forecast-day';
-                dayDiv.innerHTML = `${data.date}<br><span>${data.iconClass}</span>`;
+                dayDiv.innerHTML = `<span>${data.date}</span>`;
                 weatherIconsContainer.appendChild(iconDiv);
                 weatherIconsContainer.appendChild(dayDiv);
             });
         }
 
-        function setLocalStorageItem(key, value) {
-            localStorage.setItem(key, value);
-        }
-
         function getLocalStorageItem(key) {
             return localStorage.getItem(key);
+        }
+
+        function setLocalStorageItem(key, value) {
+            localStorage.setItem(key, value);
         }
     </script>
 </body>
