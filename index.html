@@ -185,7 +185,7 @@
                                 var areaInfo = data[0].timeSeries[0].areas[0];
                                 var weatherIconsContainer = document.getElementById('weather-icons');
                                 weatherIconsContainer.innerHTML = '';
-                                 
+                                
                                 for (var i = 0; i < 7; i++) {
                                     var weatherCode = areaInfo.weatherCodes[i];
                                     var iconClass = getWeatherIconClass(weatherCode);
