@@ -69,7 +69,6 @@
         <p id="location">場所: 取得中...</p>
         <p id="temp">温度: 取得中...</p>
         <p id="forecast">天気: 取得中...</p>
-        <p id="winds">風速: 取得中...</p> <!-- 風速情報を追加 -->
         <div id="weather-icon" class="weather-icon"></div>
     </div>
 
@@ -117,16 +116,9 @@
                                     temp = "最高気温: " + areaInfo.temperature.max.celsius + "°C";
                                 }
 
-                                // 風速情報を追加
-                                var winds = '風速情報なし';
-                                if (areaInfo.wind && areaInfo.wind.max) {
-                                    winds = "最大風速: " + areaInfo.wind.max.kmPerHour + "km/h";
-                                }
-
                                 document.getElementById('location').textContent = '場所: ' + location;
                                 document.getElementById('forecast').textContent = '天気: ' + forecast;
                                 document.getElementById('temp').textContent = temp;
-                                document.getElementById('wind-speed').textContent = winds; // 風速を表示
                                 document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                             } else {
                                 console.error('無効な天気データ');
