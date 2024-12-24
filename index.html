@@ -45,6 +45,16 @@
             background-size: contain;
         }
 
+        .forecast-day {
+            margin-top: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .forecast-day span {
+            display: block;
+        }
+
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -61,7 +71,7 @@
 
     <div class="weather">
         <p id="location">場所: 取得中...</p>
-        <div id="weather-icons"></div> <!-- ここに一週間の天気アイコンを表示 -->
+        <div id="weather-icons"></div> <!-- 一週間の天気アイコンと日付を表示 -->
     </div>
 
     <script>
@@ -112,9 +122,21 @@
                                     var weatherCode = areaInfo.weatherCodes[i];
                                     var iconClass = getWeatherIconClass(weatherCode);
 
+                                    // 日付を計算
+                                    var date = new Date();
+                                    date.setDate(date.getDate() + i);
+                                    var formattedDate = formatDate(date);
+
+                                    // 天気アイコンと日付を表示
                                     var iconDiv = document.createElement('div');
                                     iconDiv.className = 'weather-icon ' + iconClass;
+
+                                    var dayDiv = document.createElement('div');
+                                    dayDiv.className = 'forecast-day';
+                                    dayDiv.innerHTML = `<span>${formattedDate}</span>`;
+
                                     weatherIconsContainer.appendChild(iconDiv);
+                                    weatherIconsContainer.appendChild(dayDiv);
                                 }
                             } else {
                                 console.error('無効な天気データ');
@@ -144,6 +166,14 @@
                 default:
                     return 'sunny';
             }
+        }
+
+        function formatDate(date) {
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1; // 月は0から始まるので+1
+            var day = date.getDate();
+
+            return `${year}年${month}月${day}日`;
         }
     </script>
 </body>
