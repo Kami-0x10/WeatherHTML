@@ -312,7 +312,7 @@
             weatherData.forEach(function (data) {
                 var icon = document.createElement('div');
                 icon.classList.add('weather-icon');
-                icon.innerHTML = `<img src="${data.iconClass}" + ".png" alt="Weather Icon">`;
+                icon.innerHTML = `<img src="${data.iconClass}.png" alt="Weather Icon">`;
                 container.appendChild(icon);
 
                 var forecastDay = document.createElement('div');
