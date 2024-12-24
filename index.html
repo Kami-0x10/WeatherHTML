@@ -27,12 +27,6 @@
             font-size: 18px;
             margin: 10px 0;
             color: #333;
-            word-wrap: break-word; /* 長い単語を折り返す */
-            white-space: normal;   /* 空白で改行 */
-            overflow: hidden;      /* はみ出しを隠す */
-            text-overflow: ellipsis; /* 省略記号を追加 */
-            max-width: 100%;       /* 最大幅を100%に設定 */
-            display: inline-block; /* インラインブロックに設定 */
         }
 
         .weather-icon {
@@ -114,8 +108,15 @@
                                 var location = areaInfo.area.name;
                                 var forecast = areaInfo.weatherCodes[0];
 
+                                // temperatureオブジェクトが存在するか確認してからアクセス
+                                var temp = '温度情報なし';
+                                if (areaInfo.temperature && areaInfo.temperature.max) {
+                                    temp = "最高気温: " + areaInfo.temperature.max.celsius + "°C";
+                                }
+
                                 document.getElementById('location').textContent = '場所: ' + location;
                                 document.getElementById('forecast').textContent = '天気: ' + forecast;
+                                document.getElementById('temp').textContent = temp;
                                 document.getElementById('weather-icon').className = 'weather-icon ' + getWeatherIconClass(forecast);
                             } else {
                                 console.error('無効な天気データ');
