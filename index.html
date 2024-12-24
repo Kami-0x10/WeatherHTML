@@ -245,55 +245,56 @@
             };
             xhr.send();
         }
+        
         function getWeatherIconClass(weatherCode) {
             var weatherIconMap = {
-                "100": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
-                "101": "https://cdn-icons-png.flaticon.com/512/414/414825.png", // 晴れ時々曇り
-                "102": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 晴れ一時雨
-                "103": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
-                "104": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 晴れ時々曇り
-                "200": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
-                "201": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
-                "202": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 曇り時々雨
-                "210": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-                "211": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-                "212": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 強い雨
-                "213": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-                "300": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-                "301": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 小雨
-                "302": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 中雨
-                "303": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
-                "304": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
-                "305": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 局地的な雨
-                "306": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
-                "307": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雷雨
-                "400": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
-                "401": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
-                "402": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
-                "403": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
-                "404": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷を伴う雪
-                "405": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪の中の雨
-                "500": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-                "501": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 雨
-                "502": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 大雨
-                "503": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 激しい雨
-                "504": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // 非常に強い雨
-                "600": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雪
-                "601": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 軽い雪
-                "602": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 大雪
-                "603": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 激しい雪
-                "604": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // 雷雪
-                "700": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
-                "701": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
-                "702": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // 霧
-                "800": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ
-                "801": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // 晴れ時々曇り
-                "802": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
-                "803": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // 曇り時々晴れ
-                "804": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // 曇り
+                "100": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "Sunny" },
+                "101": { url: "https://cdn-icons-png.flaticon.com/512/414/414825.png", name: "Partly Cloudy" },
+                "102": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "Sunny with occasional rain" },
+                "103": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "Sunny" },
+                "104": { url: "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", name: "Partly Cloudy" },
+                "200": { url: "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", name: "Cloudy" },
+                "201": { url: "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", name: "Cloudy" },
+                "202": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "Cloudy with occasional rain" },
+                "210": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Rain" },
+                "211": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Rain" },
+                "212": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Heavy rain" },
+                "213": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Rain" },
+                "300": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Rain" },
+                "301": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Light rain" },
+                "302": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Moderate rain" },
+                "303": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Heavy rain" },
+                "304": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Heavy rain" },
+                "305": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Localized rain" },
+                "306": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Severe thunderstorm" },
+                "307": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Severe thunderstorm" },
+                "400": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Snow" },
+                "401": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Light snow" },
+                "402": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Heavy snow" },
+                "403": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Heavy snow" },
+                "404": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Snow with thunder" },
+                "405": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Rain with snow" },
+                "500": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Rain" },
+                "501": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Rain" },
+                "502": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Heavy rain" },
+                "503": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Heavy rain" },
+                "504": { url: "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", name: "Very heavy rain" },
+                "600": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Snow" },
+                "601": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Light snow" },
+                "602": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Heavy snow" },
+                "603": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Heavy snow" },
+                "604": { url: "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", name: "Thunder snow" },
+                "700": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "Fog" },
+                "701": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "Fog" },
+                "702": { url: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", name: "Fog" },
+                "800": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "Sunny" },
+                "801": { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "Partly Cloudy" },
+                "802": { url: "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", name: "Cloudy with occasional sun" },
+                "803": { url: "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", name: "Cloudy with occasional sun" },
+                "804": { url: "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", name: "Cloudy" }
             };
-            
-            return weatherIconMap[weatherCode] || "";
+
+            return weatherIconMap[weatherCode] || { url: "https://cdn-icons-png.flaticon.com/512/869/869869.png", name: "Unknown" };  // デフォルト値
         }
 
         function formatDate(date) {
