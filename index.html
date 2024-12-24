@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6,13 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天気情報</title>
     <style>
-        /* 全体のスタイル */
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
             background-color: #f0f0f0;
-            margin: 0;
-            box-sizing: border-box;
         }
 
         h1 {
@@ -36,24 +34,24 @@
             width: 50px;
             height: 50px;
             display: block;
-            margin: 20px auto;
-            background-size: contain;
+            margin: 0 auto;
         }
 
-        /* アイコンのクラス */
         .weather-icon.sunny {
             background: url('https://cdn-icons-png.flaticon.com/512/869/869869.png') no-repeat center center;
+            background-size: contain;
         }
 
         .weather-icon.cloudy {
             background: url('https://cdn-icons-png.flaticon.com/512/414/414825.png') no-repeat center center;
+            background-size: contain;
         }
 
         .weather-icon.rainy {
             background: url('https://cdn-icons-png.flaticon.com/512/414/414827.png') no-repeat center center;
+            background-size: contain;
         }
 
-        /* メディアクエリでモバイル端末の表示を最適化 */
         @media only screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -62,28 +60,7 @@
             h1 {
                 font-size: 20px;
             }
-
-            .weather p {
-                font-size: 16px;
-            }
-
-            .weather-icon {
-                width: 40px;
-                height: 40px;
-            }
         }
-
-        /* iOS6および古いブラウザ用のベンダープレフィックス */
-        .weather-icon {
-            -webkit-background-size: contain; /* iOS6向け */
-            background-size: contain; /* 現代のブラウザ */
-        }
-
-        /* box-sizing の設定 */
-        * {
-            box-sizing: border-box;
-        }
-
     </style>
 </head>
 <body>
