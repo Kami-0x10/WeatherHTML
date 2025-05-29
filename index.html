@@ -1,336 +1,114 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>天気情報</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f0f0f0;
-            margin: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天気情報</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f0f0;
+      margin: 0;
+    }
 
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 20px;
-        }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      color: #333;
+    }
 
-        .weather {
-            margin-top: 20px;
-            text-align: center;
-        }
+    #location {
+      text-align: center;
+      font-size: 18px;
+      margin: 10px 0;
+    }
 
-        #location {
-            font-size: 18px;
-            color: #555;
-            margin-bottom: 20px;
-        }
+    .forecast-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
 
-        .weather-icon {
-            width: 70px;
-            height: 70px;
-            display: inline-block;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            padding: 10px;
-            transition: transform 0.3s ease-in-out;
-        }
+    .forecast-item {
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100px;
+    }
 
-        .weather-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .weather-icon img {
-            width: 100%;
-            height: auto;
-        }
-
-        .forecast-day {
-            font-size: 16px;
-            color: #333;
-            margin-top: 10px;
-        }
-
-        .forecast-day span {
-            display: block;
-            font-size: 14px;
-            color: #777;
-        }
-
-        .forecast-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        /* レスポンシブデザイン */
-        @media only screen and (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 20px;
-            }
-
-            .weather-icon {
-                width: 60px;
-                height: 60px;
-                margin: 5px;
-            }
-
-            .forecast-day {
-                font-size: 14px;
-            }
-
-            #location {
-                font-size: 16px;
-            }
-        }
-
-        @media only screen and (max-width: 480px) {
-            .weather-icon {
-                width: 50px;
-                height: 50px;
-                margin: 5px;
-            }
-
-            .forecast-day {
-                font-size: 14px;
-            }
-
-            #location {
-                font-size: 14px;
-            }
-        }
-    </style>
+    .forecast-item img {
+      width: 50px;
+      height: 50px;
+    }
+  </style>
 </head>
-
 <body>
-    <h1>天気情報</h1>
-    <div class="weather">
-        <p id="location">場所: 取得中...</p>
-        <div id="weather-icons"></div> <!-- 一週間の天気アイコンと日付を表示 -->
-    </div>
+  <h1>天気情報</h1>
+  <div id="location">場所: 取得中...</div>
+  <div class="forecast-container" id="forecast"></div>
 
-    <script>
-        window.onload = function () {
-            getLocation();
-        };
+  <script>
+    const apiKey = ''; // Open-MeteoはAPIキー不要
+    const getLocation = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        document.getElementById('location').textContent = `場所: ${data.city}, ${data.region}, ${data.country_name}`;
+        getWeather(data.latitude, data.longitude);
+      } catch (err) {
+        console.error('位置情報取得エラー:', err);
+        document.getElementById('location').textContent = '場所: 取得失敗';
+      }
+    };
 
-        function getLocation() {
-            var cachedLocation = getLocalStorageItem('locationData');
-            var lastUpdated = getLocalStorageItem('lastUpdated');
-            var currentTime = new Date().getTime();
+    const getWeather = async (lat, lon) => {
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo`);
+        const data = await res.json();
+        const container = document.getElementById('forecast');
+        container.innerHTML = '';
+        data.daily.time.forEach((date, index) => {
+          const code = data.daily.weathercode[index];
+          const iconUrl = getWeatherIcon(code);
+          const tempMax = data.daily.temperature_2m_max[index];
+          const tempMin = data.daily.temperature_2m_min[index];
 
-            if (cachedLocation && lastUpdated && (currentTime - lastUpdated) < 86400000) {
-                var locationData = JSON.parse(cachedLocation);
-                displayLocation(locationData);
-                var region = locationData.region.split(',')[0].trim();
-                var regionCode = getRegionCode(region);
-                if (regionCode) {
-                    var closestRegionCode = getClosestRegionCode(regionCode);
-                    var cachedWeatherData = getLocalStorageItem('weatherData');
-                    if (cachedWeatherData) {
-                        displayWeatherIcons(JSON.parse(cachedWeatherData));
-                    } else {
-                        getWeatherByLocation(closestRegionCode);
-                    }
-                }
-            } else {
-                getLocationFromIP();
-            }
-        }
+          const div = document.createElement('div');
+          div.className = 'forecast-item';
+          div.innerHTML = `
+            <div>${date}</div>
+            <img src="${iconUrl}" alt="天気アイコン">
+            <div>最高: ${tempMax}℃<br>最低: ${tempMin}℃</div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error('天気情報取得エラー:', err);
+      }
+    };
 
-        function getLocationFromIP() {
-            var apiUrl = 'https://ipinfo.io/json';
+    const getWeatherIcon = (code) => {
+      // Open-Meteoのweathercode → アイコン変換
+      const map = {
+        0: 'https://cdn-icons-png.flaticon.com/512/869/869869.png', // 晴れ
+        1: 'https://cdn-icons-png.flaticon.com/512/414/414825.png', // 少し曇り
+        2: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 曇り
+        3: 'https://cdn-icons-png.flaticon.com/512/1146/1146869.png', // 厚い曇り
+        45: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 霧
+        48: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 霧
+        51: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // 小雨
+        61: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // 雨
+        71: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 雪
+        80: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // にわか雨
+      };
+      return map[code] || 'https://cdn-icons-png.flaticon.com/512/869/869869.png';
+    };
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', apiUrl, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    try {
-                        var locationData = JSON.parse(xhr.responseText);
-                        setLocalStorageItem('locationData', JSON.stringify(locationData));
-                        setLocalStorageItem('lastUpdated', new Date().getTime());
-                        displayLocation(locationData);
-                        var region = locationData.region.split(',')[0].trim();
-                        var regionCode = getRegionCode(region);
-                        if (regionCode) {
-                            var closestRegionCode = getClosestRegionCode(regionCode);
-                            getWeatherByLocation(closestRegionCode);
-                        }
-                    } catch (error) {
-                        console.error('位置情報取得エラー:', error);
-                    }
-                }
-            };
-            xhr.send();
-        }
-
-        function displayLocation(locationData) {
-            var city = locationData.city;
-            var region = locationData.region.split(',')[0].trim();
-            var country = locationData.country;
-            document.getElementById('location').textContent = '場所: ' + city + ', ' + region + ', ' + country;
-        }
-
-        function getRegionCode(region) {
-            var regionCodes = {
-                'Hokkaido': '010000', 'Aomori': '020000', 'Iwate': '030000', 'Miyagi': '040000', 'Akita': '050000',
-                'Yamagata': '060000', 'Fukushima': '070000', 'Ibaraki': '080000', 'Tochigi': '090000', 'Gunma': '100000',
-                'Saitama': '110000', 'Chiba': '120000', 'Tokyo': '130000', 'Kanagawa': '140000', 'Niigata': '150000',
-                'Toyama': '160000', 'Ishikawa': '170000', 'Fukui': '180000', 'Yamanashi': '190000', 'Nagano': '200000',
-                'Gifu': '210000', 'Shizuoka': '220000', 'Aichi': '230000', 'Mie': '240000', 'Shiga': '250000',
-                'Kyoto': '260000', 'Osaka': '270000', 'Hyogo': '280000', 'Nara': '290000', 'Wakayama': '300000',
-                'Tottori': '310000', 'Shimane': '320000', 'Okayama': '330000', 'Hiroshima': '340000', 'Yamaguchi': '350000',
-                'Tokushima': '360000', 'Kagawa': '370000', 'Ehime': '380000', 'Kochi': '390000', 'Fukuoka': '400000',
-                'Saga': '410000', 'Nagasaki': '420000', 'Kumamoto': '430000', 'Oita': '440000', 'Miyazaki': '450000',
-                'Kagoshima': '460000', 'Okinawa': '470000'
-            };
-            return regionCodes[region] || null;
-        }
-
-        function getClosestRegionCode(regionCode) {
-            var regionMapping = {
-                '010000': '010000', '020000': '020000', '030000': '030000', '040000': '040000', '050000': '050000',
-                '060000': '060000', '070000': '070000', '080000': '080000', '090000': '090000', '100000': '100000',
-                '110000': '130000', '120000': '130000', '130000': '130000', '140000': '130000', '150000': '150000',
-                '160000': '160000', '170000': '170000', '180000': '130000', '190000': '130000', '200000': '200000',
-                '210000': '210000', '220000': '220000', '230000': '230000', '240000': '230000', '250000': '250000',
-                '260000': '250000', '270000': '270000', '280000': '270000', '290000': '270000', '300000': '270000',
-                '310000': '330000', '320000': '330000', '330000': '340000', '340000': '350000', '350000': '350000',
-                '360000': '370000', '370000': '380000', '380000': '390000', '390000': '390000', '400000': '400000',
-                '410000': '420000', '420000': '430000', '430000': '440000', '440000': '450000', '450000': '460000',
-                '460000': '470000', '470000': '470000'
-            };
-
-            return regionMapping[regionCode] || regionCode;
-        }
-
-        function getWeatherByLocation(regionCode) {
-            var apiUrl = `https://cors-0x10.online:4443/https://www.jma.go.jp/bosai/forecast/data/forecast/${regionCode}.json`;
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', apiUrl, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        if (data && data[0] && data[0].timeSeries && data[0].timeSeries[0].areas) {
-                            var areaInfo = data[0].timeSeries[0].areas[0];
-                            var weatherData = [];
-                            for (var i = 0; i < 7; i++) {
-                                var weatherCode = areaInfo.weatherCodes[i];
-                                var iconClass = getWeatherIconClass(weatherCode);
-                                var date = new Date();
-                                date.setDate(date.getDate() + i);
-                                var formattedDate = formatDate(date);
-
-                                weatherData.push({ weatherCode: weatherCode, iconClass: iconClass, date: formattedDate });
-                            }
-                            setLocalStorageItem('weatherData', JSON.stringify(weatherData));
-                            displayWeatherIcons(weatherData);
-                        }
-                    } catch (error) {
-                        console.error('天気情報解析エラー:', error);
-                    }
-                }
-            };
-            xhr.send();
-        }
-
-        function getWeatherIconClass(weatherCode) {
-            var weatherIconMap = {
-                "100": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // sunny
-                "101": "https://cdn-icons-png.flaticon.com/512/414/414825.png", // partly cloudy
-                "102": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // sunny with occasional rain
-                "103": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // sunny
-                "104": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // partly cloudy
-                "200": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // cloudy
-                "201": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png", // cloudy
-                "202": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // cloudy with occasional rain
-                "210": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
-                "211": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
-                "212": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
-                "213": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
-                "300": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
-                "301": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // light rain
-                "302": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // moderate rain
-                "303": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
-                "304": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
-                "305": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // localized rain
-                "306": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // severe thunderstorm
-                "307": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // severe thunderstorm
-                "400": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // snow
-                "401": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // light snow
-                "402": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
-                "403": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
-                "404": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // snow with thunder
-                "405": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // rain with snow
-                "500": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
-                "501": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // rain
-                "502": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
-                "503": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // heavy rain
-                "504": "https://cdn-icons-png.flaticon.com/512/3075/3075858.png", // very heavy rain
-                "600": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // snow
-                "601": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // light snow
-                "602": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
-                "603": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // heavy snow
-                "604": "https://cdn-icons-png.flaticon.com/512/6426/6426744.png", // thunder snow
-                "700": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // fog
-                "701": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // fog
-                "702": "https://cdn-icons-png.flaticon.com/512/1163/1163624.png", // fog
-                "800": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // sunny
-                "801": "https://cdn-icons-png.flaticon.com/512/869/869869.png", // partly cloudy
-                "802": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // cloudy with occasional sun
-                "803": "https://cdn-icons-png.flaticon.com/512/4169/4169754.png", // cloudy with occasional sun
-                "804": "https://cdn-icons-png.flaticon.com/512/1146/1146869.png"  // cloudy
-            };
-
-            return weatherIconMap[weatherCode] || "https://cdn-icons-png.flaticon.com/512/869/869869.png"; // Default icon
-        }
-
-        function formatDate(date) {
-            var year = date.getFullYear();
-            var month = String(date.getMonth() + 1).padStart(2, '0');
-            var day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        function displayWeatherIcons(weatherData) {
-            var container = document.getElementById('weather-icons');
-            container.innerHTML = '';
-
-            weatherData.forEach(function (data) {
-                var icon = document.createElement('div');
-                icon.classList.add('weather-icon');
-                icon.innerHTML = `<img src="${data.iconClass}" alt="Weather Icon">`;
-                container.appendChild(icon);
-
-                var forecastDay = document.createElement('div');
-                forecastDay.classList.add('forecast-day');
-                forecastDay.innerHTML = `${data.date}<span>天気</span>`;
-                container.appendChild(forecastDay);
-            });
-        }
-
-        function getLocalStorageItem(key) {
-            return localStorage.getItem(key);
-        }
-
-        function setLocalStorageItem(key, value) {
-            localStorage.setItem(key, value);
-        }
-    </script>
+    getLocation();
+  </script>
 </body>
-
 </html>
