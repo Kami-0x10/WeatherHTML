@@ -99,35 +99,35 @@
       }
     };
 
-    const getWeatherIcon = (code) => {
-      // Open-MeteoのWMOコードに基づくアイコン
-      const map = {
-        0: 'https://cdn-icons-png.flaticon.com/512/869/869869.png', // 晴れ
-        1: 'https://cdn-icons-png.flaticon.com/512/414/414825.png', // やや曇り
-        2: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 曇り
-        3: 'https://cdn-icons-png.flaticon.com/512/1146/1146869.png', // 厚い曇り
-        45: 'https://cdn-icons-png.flaticon.com/512/1779/1779940.png', // 霧
-        48: 'https://cdn-icons-png.flaticon.com/512/1779/1779940.png', // 霧（氷点下）
-        // 雨（小雨、中雨、強い雨、にわか雨）
-        51: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 小雨
-        53: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 中雨
-        55: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 強い雨
-        61: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 雨
-        63: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 中程度の雨
-        65: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 強い雨
-        80: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // にわか雨
-        81: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 中程度のにわか雨
-        82: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 強いにわか雨
-        71: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 雪
-        73: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 中程度の雪
-        75: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 強い雪
-        95: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨
-        96: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨（弱い雹）
-        99: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨（強い雹）
-      };
-      return map[code] || 'https://cdn-icons-png.flaticon.com/512/869/869869.png'; // デフォルトは晴れ
-    };
-
+const getWeatherIcon = (code) => {
+  // Open-MeteoのWMOコードに基づくアイコン
+  const map = {
+    0: 'https://cdn-icons-png.flaticon.com/512/869/869869.png', // 晴れ
+    1: 'https://cdn-icons-png.flaticon.com/512/414/414825.png', // やや曇り
+    2: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 曇り
+    3: 'https://cdn-icons-png.flaticon.com/512/1146/1146869.png', // 厚い曇り
+    45: 'https://cdn-icons-png.flaticon.com/512/1779/1779940.png', // 霧
+    48: 'https://cdn-icons-png.flaticon.com/512/1779/1779940.png', // 霧（氷点下）
+    // 雨（小雨、中雨、強い雨）
+    51: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 小雨
+    53: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 中雨
+    55: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 強い雨
+    61: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 雨
+    63: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 中程度の雨
+    65: 'https://cdn-icons-png.flaticon.com/512/2930/2930095.png', // 強い雨
+    80: 'https://cdn-icons-png.flaticon.com/512/1146/1146858.png', // にわか雨
+    81: 'https://cdn-icons-png.flaticon.com/512/1146/1146858.png', // 中程度のにわか雨
+    82: 'https://cdn-icons-png.flaticon.com/512/1146/1146858.png', // 強いにわか雨
+    71: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 雪
+    73: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 中程度の雪
+    75: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 強い雪
+    95: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨
+    96: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨（弱い雹）
+    99: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨（強い雹）
+  };
+  return map[code] || 'https://cdn-icons-png.flaticon.com/512/869/869869.png'; // デフォルトは晴れ
+};
+    
     const formatDate = (dateString) => {
       const date = new Date(dateString);
       return `${date.getMonth() + 1}/${date.getDate()}`;
