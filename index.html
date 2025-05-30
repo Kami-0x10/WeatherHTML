@@ -52,25 +52,32 @@
   <div class="forecast-container" id="forecast"></div>
 
   <script>
-    const apiKey = ''; // Open-MeteoはAPIキー不要
     const getLocation = async () => {
       try {
         const res = await fetch('https://ipapi.co/json/');
+        if (!res.ok) throw new Error('位置情報APIエラー');
         const data = await res.json();
-        document.getElementById('location').textContent = `場所: ${data.city}, ${data.region}, ${data.country_name}`;
+        document.getElementById('location').textContent = `場所: ${data.city || '不明'}, ${data.region || '不明'}, ${data.country_name || '不明'}`;
         getWeather(data.latitude, data.longitude);
       } catch (err) {
         console.error('位置情報取得エラー:', err);
         document.getElementById('location').textContent = '場所: 取得失敗';
+        document.getElementById('forecast').innerHTML = '<p>天気情報を取得できませんでした。</p>';
       }
     };
 
     const getWeather = async (lat, lon) => {
       try {
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo`);
+        if (!res.ok) throw new Error('天気APIエラー');
         const data = await res.json();
         const container = document.getElementById('forecast');
         container.innerHTML = '';
+
+        if (!data.daily || !data.daily.time) {
+          throw new Error('天気データが不正です');
+        }
+
         data.daily.time.forEach((date, index) => {
           const code = data.daily.weathercode[index];
           const iconUrl = getWeatherIcon(code);
@@ -80,7 +87,7 @@
           const div = document.createElement('div');
           div.className = 'forecast-item';
           div.innerHTML = `
-            <div>${date}</div>
+            <div>${formatDate(date)}</div>
             <img src="${iconUrl}" alt="天気アイコン">
             <div>最高: ${tempMax}℃<br>最低: ${tempMin}℃</div>
           `;
@@ -88,24 +95,41 @@
         });
       } catch (err) {
         console.error('天気情報取得エラー:', err);
+        document.getElementById('forecast').innerHTML = '<p>天気情報を取得できませんでした。</p>';
       }
     };
 
     const getWeatherIcon = (code) => {
-      // Open-Meteoのweathercode → アイコン変換
+      // Open-MeteoのWMOコードに基づくアイコン
       const map = {
         0: 'https://cdn-icons-png.flaticon.com/512/869/869869.png', // 晴れ
-        1: 'https://cdn-icons-png.flaticon.com/512/414/414825.png', // 少し曇り
+        1: 'https://cdn-icons-png.flaticon.com/512/414/414825.png', // やや曇り
         2: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 曇り
         3: 'https://cdn-icons-png.flaticon.com/512/1146/1146869.png', // 厚い曇り
-        45: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 霧
-        48: 'https://cdn-icons-png.flaticon.com/512/1163/1163624.png', // 霧
+        45: 'https://cdn-icons-png.flaticon.com/512/1779/1779940.png', // 霧
+        48: 'https://cdn-icons-png.flaticon.com/512/1779/1779940.png', // 霧（氷点下）
         51: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // 小雨
-        61: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // 雨
+        53: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // 中雨
+        55: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // 強い雨
+        61: 'https://cdn-icons-png.flaticon.com/512/2469/2469992.png', // 雨
+        63: 'https://cdn-icons-png.flaticon.com/512/2469/2469992.png', // 中程度の雨
+        65: 'https://cdn-icons-png.flaticon.com/512/2469/2469992.png', // 強い雨
         71: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 雪
-        80: 'https://cdn-icons-png.flaticon.com/512/3075/3075858.png', // にわか雨
+        73: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 中程度の雪
+        75: 'https://cdn-icons-png.flaticon.com/512/6426/6426744.png', // 強い雪
+        80: 'https://cdn-icons-png.flaticon.com/512/2469/2469992.png', // にわか雨
+        81: 'https://cdn-icons-png.flaticon.com/512/2469/2469992.png', // 中程度のにわか雨
+        82: 'https://cdn-icons-png.flaticon.com/512/2469/2469992.png', // 強いにわか雨
+        95: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨
+        96: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨（弱い雹）
+        99: 'https://cdn-icons-png.flaticon.com/512/2315/2315309.png', // 雷雨（強い雹）
       };
-      return map[code] || 'https://cdn-icons-png.flaticon.com/512/869/869869.png';
+      return map[code] || 'https://cdn-icons-png.flaticon.com/512/869/869869.png'; // デフォルトは晴れ
+    };
+
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
     };
 
     getLocation();
